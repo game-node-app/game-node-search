@@ -1,0 +1,15 @@
+host: search.gamenode.com.br
+info:
+  contact:
+    email: support@gamenode.com.br
+    name: API Support
+    url: gamenode.com.br/help
+  description: The GameNode Search API documentation.
+  license:
+    name: GNU General Public License
+    url: http://www.gnu.org/licenses/
+  termsOfService: http://swagger.io/terms/
+  title: GameNode Search API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

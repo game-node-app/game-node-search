@@ -1,2 +1,4 @@
 # game-node-search
-GameNode's search system, made with ❤️ and crabs. BLAZINGLY FAST.
+GameNode's search system, made with ❤️. BLAZINGLY FAST.
+
+
