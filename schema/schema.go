@@ -1,31 +1,29 @@
 package schema
 
-import "time"
-
 type AnyMap map[string]interface{}
 
 type SearchGame struct {
-	ID                     int64     `json:"id"`
-	Name                   string    `json:"name"`
-	Slug                   string    `json:"slug"`
-	Summary                string    `json:"summary,omitempty"`
-	Storyline              string    `json:"storyline,omitempty"`
-	Checksum               string    `json:"checksum,omitempty"`
-	AggregatedRating       float64   `json:"aggregatedRating,omitempty"`
-	AggregatedRatingCount  int64     `json:"aggregatedRatingCount,omitempty"`
-	Category               uint8     `json:"category"`
-	Status                 uint8     `json:"status"`
-	FirstReleaseDate       time.Time `json:"firstReleaseDate,omitempty"`
-	CreatedAt              time.Time `json:"createdAt"`
-	UpdatedAt              time.Time `json:"updatedAt"`
-	CoverUrl               string    `json:"coverUrl,omitempty"`
-	NumViews               uint64    `json:"numViews,omitempty"`
-	NumLikes               uint64    `json:"numLikes,omitempty"`
-	GenresNames            string    `json:"genresNames,omitempty"`
-	PlatformsNames         string    `json:"platformsNames,omitempty"`
-	PlatformsAbbreviations string    `json:"platformsAbbreviations,omitempty"`
-	KeywordsNames          string    `json:"keywordsNames,omitempty"`
-	Source                 string    `json:"source"`
+	ID                     int64   `json:"id"`
+	Name                   string  `json:"name"`
+	Slug                   string  `json:"slug"`
+	Summary                string  `json:"summary,omitempty"`
+	Storyline              string  `json:"storyline,omitempty"`
+	Checksum               string  `json:"checksum,omitempty"`
+	AggregatedRating       float64 `json:"aggregatedRating,omitempty"`
+	AggregatedRatingCount  int64   `json:"aggregatedRatingCount,omitempty"`
+	Category               uint8   `json:"category"`
+	Status                 uint8   `json:"status"`
+	FirstReleaseDate       uint64  `json:"firstReleaseDate,omitempty"`
+	CreatedAt              uint64  `json:"createdAt"`
+	UpdatedAt              uint64  `json:"updatedAt"`
+	CoverUrl               string  `json:"coverUrl,omitempty"`
+	NumViews               uint64  `json:"numViews,omitempty"`
+	NumLikes               uint64  `json:"numLikes,omitempty"`
+	GenresNames            string  `json:"genresNames,omitempty"`
+	PlatformsNames         string  `json:"platformsNames,omitempty"`
+	PlatformsAbbreviations string  `json:"platformsAbbreviations,omitempty"`
+	KeywordsNames          string  `json:"keywordsNames,omitempty"`
+	Source                 string  `json:"source"`
 }
 
 type ManticoreResponseHit struct {
@@ -63,7 +61,7 @@ type ManticoreErrorResponse struct {
 }
 
 type GameSearchResponseHit struct {
-	ID     int        `json:"id"`
+	ID     string     `json:"id"`
 	Score  int        `json:"score"`
 	Source SearchGame `json:"source"`
 }
