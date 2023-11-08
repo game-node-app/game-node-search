@@ -12,9 +12,9 @@ import (
 	"net/http"
 )
 
-// @title GameNode Handler API
+// @title GameNode Search API
 // @version 1.0
-// @description The GameNode Handler API documentation.
+// @description The GameNode Search API documentation.
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name API Support

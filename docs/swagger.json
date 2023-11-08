@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "The GameNode Handler API documentation.",
-        "title": "GameNode Handler API",
+        "description": "The GameNode Search API documentation.",
+        "title": "GameNode Search API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
