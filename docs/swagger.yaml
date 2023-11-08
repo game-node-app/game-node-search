@@ -1,15 +1,164 @@
-host: search.gamenode.com.br
+definitions:
+  schema.AnyMap:
+    additionalProperties: true
+    type: object
+  schema.GameSearchRequestDto:
+    properties:
+      aggs:
+        items:
+          $ref: '#/definitions/schema.AnyMap'
+        type: array
+      attrFilter:
+        $ref: '#/definitions/schema.AnyMap'
+      expressions:
+        items:
+          $ref: '#/definitions/schema.AnyMap'
+        type: array
+      fulltextFilter:
+        $ref: '#/definitions/schema.AnyMap'
+      highlight:
+        $ref: '#/definitions/schema.AnyMap'
+      index:
+        type: string
+      limit:
+        type: integer
+      maxMatches:
+        type: integer
+      offset:
+        type: integer
+      profile:
+        type: boolean
+      query:
+        $ref: '#/definitions/schema.AnyMap'
+      sort:
+        items:
+          $ref: '#/definitions/schema.AnyMap'
+        type: array
+      source:
+        $ref: '#/definitions/schema.AnyMap'
+      trackScores:
+        type: boolean
+    type: object
+  schema.GameSearchResponseDto:
+    properties:
+      aggregations:
+        additionalProperties: true
+        type: object
+      hits:
+        $ref: '#/definitions/schema.GameSearchResponseHits'
+      profile:
+        additionalProperties: true
+        type: object
+      timedOut:
+        type: boolean
+      took:
+        type: integer
+      warning:
+        additionalProperties: true
+        type: object
+    type: object
+  schema.GameSearchResponseHit:
+    properties:
+      id:
+        type: integer
+      score:
+        type: integer
+      source:
+        $ref: '#/definitions/schema.SearchGame'
+    type: object
+  schema.GameSearchResponseHits:
+    properties:
+      hits:
+        items:
+          $ref: '#/definitions/schema.GameSearchResponseHit'
+        type: array
+      maxScore:
+        type: number
+      total:
+        type: integer
+      totalRelation:
+        type: string
+    type: object
+  schema.SearchGame:
+    properties:
+      aggregatedRating:
+        type: number
+      aggregatedRatingCount:
+        type: integer
+      category:
+        type: integer
+      checksum:
+        type: string
+      coverUrl:
+        type: string
+      createdAt:
+        type: string
+      firstReleaseDate:
+        type: string
+      genresNames:
+        type: string
+      id:
+        type: integer
+      keywordsNames:
+        type: string
+      name:
+        type: string
+      numLikes:
+        type: integer
+      numViews:
+        type: integer
+      platformsAbbreviations:
+        type: string
+      platformsNames:
+        type: string
+      slug:
+        type: string
+      source:
+        type: string
+      status:
+        type: integer
+      storyline:
+        type: string
+      summary:
+        type: string
+      updatedAt:
+        type: string
+    type: object
 info:
   contact:
     email: support@gamenode.com.br
     name: API Support
     url: gamenode.com.br/help
-  description: The GameNode Search API documentation.
+  description: The GameNode Handler API documentation.
   license:
     name: GNU General Public License
     url: http://www.gnu.org/licenses/
   termsOfService: http://swagger.io/terms/
-  title: GameNode Search API
+  title: GameNode Handler API
   version: "1.0"
-paths: {}
+paths:
+  /search:
+    post:
+      consumes:
+      - application/json
+      description: Returns a parsed search response from the Manticore engine
+      parameters:
+      - description: Account ID
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/schema.GameSearchRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/schema.GameSearchResponseDto'
+            type: array
+      summary: Searches using Manticore engine
+      tags:
+      - search
 swagger: "2.0"

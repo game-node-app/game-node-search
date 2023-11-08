@@ -2,18 +2,16 @@ package search
 
 import (
 	"bytes"
-	"fmt"
 	"game-node-search/schema"
 	"game-node-search/util"
 	jsoniter "github.com/json-iterator/go"
 	"io"
 	"net/http"
-	"strings"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-func validateSearchRequest(r *http.Request) (*schema.GameSearchRequestDto, error) {
+func ValidateSearchRequest(r *http.Request) (*schema.GameSearchRequestDto, error) {
 	dto := &schema.GameSearchRequestDto{
 		Index: "gamenode",
 	}
@@ -27,73 +25,20 @@ func validateSearchRequest(r *http.Request) (*schema.GameSearchRequestDto, error
 
 }
 
-func parseManticoreResponse(mr *schema.ManticoreSearchResponse) (*schema.GameSearchResponseDto, error) {
-	mrBytes, _ := json.Marshal(mr)
-	resultJson := make(map[string]interface{})
-	err := json.Unmarshal(mrBytes, &resultJson)
-	if err != nil {
-		fmt.Println("json.Unmarshal failed:", err)
-		return nil, err
-	}
-
-	convertedMap := snakeToCamelCase(resultJson)
-	convertedMapBytes, _ := json.Marshal(convertedMap)
-	var searchResponse schema.GameSearchResponseDto
-	err = json.Unmarshal(convertedMapBytes, &searchResponse)
-	if err != nil {
-		fmt.Println("json.Unmarshal failed:", err)
-		return nil, err
-	}
-
-	return &searchResponse, nil
-}
-
-// Converts all keys of a given type from snake_case to camelCase.
-// Since Go doesn't support type unions, we need to use interface{} and manually check for a map.
-// It's ugly, but it works.
-func snakeToCamelCase(src interface{}) *map[string]interface{} {
-	dst := make(map[string]interface{})
-	mappedSrc, isMap := src.(map[string]interface{})
-	if isMap && len(mappedSrc) > 0 {
-		for k, v := range mappedSrc {
-			switch v := v.(type) {
-			case map[string]interface{}:
-				camelCaseKey := stringToCamelCase(k)
-				dst[camelCaseKey] = snakeToCamelCase(v)
-			case []interface{}:
-				var convertedSlice []interface{}
-				for _, av := range v {
-					convertedSlice = append(convertedSlice, snakeToCamelCase(av))
-				}
-				camelCaseKey := stringToCamelCase(k)
-				dst[camelCaseKey] = convertedSlice
-			default:
-				// Convert the key to camel case and assign the value
-				camelCaseKey := stringToCamelCase(k)
-				dst[camelCaseKey] = v
-			}
-		}
-	}
-
-	return &dst
-}
-
-func stringToCamelCase(s string) string {
-	// Removes leading underscore from fields like "_score" and "_id"
-	if strings.HasPrefix(s, "_") {
-		s = s[1:]
-	}
-	ss := strings.Split(s, "_")
-	for i := 1; i < len(ss); i++ {
-		ss[i] = strings.Title(ss[i])
-	}
-	return strings.Join(ss, "")
-}
-
+// Handler search handler
+//
+//	@Summary      Searches using Manticore engine
+//	@Description  Returns a parsed search response from the Manticore engine
+//	@Tags         search
+//	@Accept       json
+//	@Produce      json
+//	@Param        query   body      schema.GameSearchRequestDto  true  "Account ID"
+//	@Success      200  {array}   schema.GameSearchResponseDto
+//	@Router       /search [post]
 func Handler(w http.ResponseWriter, r *http.Request) *schema.GameSearchResponseDto {
 	defer r.Body.Close()
 
-	dto, err := validateSearchRequest(r)
+	dto, err := ValidateSearchRequest(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return nil
@@ -140,7 +85,7 @@ func Handler(w http.ResponseWriter, r *http.Request) *schema.GameSearchResponseD
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	result, err := parseManticoreResponse(&manticoreResponseDto)
+	result, err := ParseManticoreResponse(&manticoreResponseDto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
