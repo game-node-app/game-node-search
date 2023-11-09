@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/swaggo/http-swagger/v2"
+	"io"
 	"net/http"
 )
 
@@ -26,7 +27,10 @@ import (
 
 func main() {
 	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 	r.Mount("/swagger/{param}", httpSwagger.Handler())
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("Hello World!"))
@@ -35,13 +39,26 @@ func main() {
 		}
 	})
 	r.Post("/search", func(w http.ResponseWriter, r *http.Request) {
-		response := search.Handler(w, r)
-		responseBytes, _ := json.Marshal(response)
+		defer r.Body.Close()
+		reqDtoBytes, _ := io.ReadAll(r.Body)
+		reqDto, err := search.ValidateSearchRequest(reqDtoBytes)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		response, err := search.Handler(reqDto)
 		w.Header().Set("Content-Type", "application/json")
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+
+		}
+		responseBytes, _ := json.Marshal(response)
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(responseBytes)
 		return
-
 	})
 	port := util.GetEnv("PORT", ":9000")
 	fmt.Print("Server listening on port: ", port)

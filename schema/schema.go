@@ -80,6 +80,39 @@ type ManticoreSearchResponse struct {
 	Warning      map[string]interface{}  `json:"warning,omitempty"`
 }
 
+type ManticoreSearchRequestQueryBool struct {
+	Match   *ManticoreSearchRequestQueryMatch `json:"match"`
+	Must    *AnyMap                           `json:"must"`
+	MustNot *AnyMap                           `json:"must_not"`
+	Should  *AnyMap                           `json:"should"`
+}
+
+type ManticoreSearchRequestQueryMatch struct {
+	All *AnyMap `json:"_all"`
+}
+
+type ManticoreSearchRequestQuery struct {
+	Match ManticoreSearchRequestQueryMatch `json:"match"`
+	Bool  *ManticoreSearchRequestQueryBool `json:"bool"`
+}
+
+type ManticoreSearchRequest struct {
+	Index          string                      `json:"index"`
+	Query          ManticoreSearchRequestQuery `json:"query"`
+	FulltextFilter AnyMap                      `json:"fulltext_filter,omitempty"`
+	AttrFilter     AnyMap                      `json:"attr_filter,omitempty"`
+	Limit          *int                        `json:"limit,omitempty"`
+	Offset         *int                        `json:"offset,omitempty"`
+	MaxMatches     *int                        `json:"max_matches,omitempty"`
+	Sort           []AnyMap                    `json:"sort,omitempty"`
+	Aggs           []AnyMap                    `json:"aggs,omitempty"`
+	Expressions    []AnyMap                    `json:"expressions,omitempty"`
+	Highlight      AnyMap                      `json:"highlight,omitempty"`
+	Source         AnyMap                      `json:"source,omitempty"`
+	Profile        *bool                       `json:"profile,omitempty"`
+	TrackScores    *bool                       `json:"trackScores,omitempty"`
+}
+
 type ManticoreErrorResponse struct {
 	Total   int    `json:"total"`
 	Warning string `json:"warning"`
@@ -109,18 +142,12 @@ type GameSearchResponseDto struct {
 }
 
 type GameSearchRequestDto struct {
-	Index          string   `json:"index"`
-	Query          AnyMap   `json:"query"`
-	FulltextFilter AnyMap   `json:"fulltextFilter,omitempty"`
-	AttrFilter     AnyMap   `json:"attrFilter,omitempty"`
-	Limit          *int     `json:"limit,omitempty"`
-	Offset         *int     `json:"offset,omitempty"`
-	MaxMatches     *int     `json:"maxMatches,omitempty"`
-	Sort           []AnyMap `json:"sort,omitempty"`
-	Aggs           []AnyMap `json:"aggs,omitempty"`
-	Expressions    []AnyMap `json:"expressions,omitempty"`
-	Highlight      AnyMap   `json:"highlight,omitempty"`
-	Source         AnyMap   `json:"source,omitempty"`
-	Profile        *bool    `json:"profile,omitempty"`
-	TrackScores    *bool    `json:"trackScores,omitempty"`
+	Query     string    `json:"query"`
+	Category  *[]int    `json:"category,omitempty"`
+	Status    *[]int    `json:"status,omitempty"`
+	Genres    *[]string `json:"genres"`
+	Platforms *[]string `json:"platforms"`
+	Limit     *int      `json:"limit,omitempty"`
+	Page      *int      `json:"page,omitempty"`
+	Profile   *bool     `json:"profile,omitempty"`
 }

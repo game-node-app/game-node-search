@@ -8,13 +8,6 @@ services:
       - EXTRA=1
       - CREATE_PLAIN_TABLES=gamenode:0 6,15 * * *
     restart: no
-    ports:
-      # Note: ManticoreSearch as minimum built-in security,
-      # so it's not recommended to expose it to the host in production.
-      # SQL port, use it with care (not used by GameNode).
-      - "127.0.0.1:9306:9306"
-      - "127.0.0.1:9308:9308"
-
     ulimits:
       nproc: 65535
       nofile:
@@ -31,6 +24,35 @@ services:
     networks:
       - game_node_app
 
+  search:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    depends_on:
+      - manticore
+
+    command: ["go", "run", "main.go"]
+
+    # Most of the env vars are loaded directly from .env, we only need to override some to make sure
+    # the docker resources are accessible.
+    environment:
+      MANTICORE_URL: http://manticore:9308
+
+    restart: always
+
+    #    deploy:
+    #      replicas: 3
+
+    networks:
+      - game_node_app
+
+    volumes:
+      - search:/app
+
+    ports:
+      - "9000:9000"
+
 
 networks:
   game_node_app:
@@ -38,4 +60,5 @@ networks:
 
 volumes:
   manticore:
+  search:
 
