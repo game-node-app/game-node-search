@@ -114,9 +114,9 @@ type ManticoreSearchRequest struct {
 }
 
 type ManticoreErrorResponse struct {
-	Total   int    `json:"total"`
-	Warning string `json:"warning"`
-	Error   string `json:"error"`
+	Total   *int    `json:"total"`
+	Warning *string `json:"warning"`
+	Error   *string `json:"error"`
 }
 
 type GameSearchResponseHit struct {

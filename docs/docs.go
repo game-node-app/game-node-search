@@ -52,10 +52,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schema.GameSearchResponseDto"
-                            }
+                            "$ref": "#/definitions/schema.GameSearchResponseDto"
                         }
                     }
                 }
@@ -63,63 +60,44 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "schema.AnyMap": {
-            "type": "object",
-            "additionalProperties": true
-        },
         "schema.GameSearchRequestDto": {
             "type": "object",
             "properties": {
-                "aggs": {
+                "category": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/schema.AnyMap"
+                        "type": "integer"
                     }
                 },
-                "attrFilter": {
-                    "$ref": "#/definitions/schema.AnyMap"
-                },
-                "expressions": {
+                "genres": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/schema.AnyMap"
+                        "type": "string"
                     }
-                },
-                "fulltextFilter": {
-                    "$ref": "#/definitions/schema.AnyMap"
-                },
-                "highlight": {
-                    "$ref": "#/definitions/schema.AnyMap"
-                },
-                "index": {
-                    "type": "string"
                 },
                 "limit": {
                     "type": "integer"
                 },
-                "maxMatches": {
+                "page": {
                     "type": "integer"
                 },
-                "offset": {
-                    "type": "integer"
+                "platforms": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "profile": {
                     "type": "boolean"
                 },
                 "query": {
-                    "$ref": "#/definitions/schema.AnyMap"
+                    "type": "string"
                 },
-                "sort": {
+                "status": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/schema.AnyMap"
+                        "type": "integer"
                     }
-                },
-                "source": {
-                    "$ref": "#/definitions/schema.AnyMap"
-                },
-                "trackScores": {
-                    "type": "boolean"
                 }
             }
         },

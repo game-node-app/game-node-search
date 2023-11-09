@@ -79,8 +79,8 @@ func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error
 	}
 
 	offset := (*page - 1) * *limit
-	paginationString := fmt.Sprintf("OFFSET %d LIMIT %d", offset, limit)
-	var filterString string
+	paginationString := fmt.Sprintf(" LIMIT %d OFFSET %d", *limit, offset)
+	var filterString = ""
 
 	if dto.Category != nil && len(*dto.Category) > 0 {
 		var categoryFilterArrayString = ""
@@ -88,7 +88,7 @@ func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error
 			categoryFilterArrayString = fmt.Sprintf("%s,%d", categoryFilterArrayString, v)
 		}
 
-		filterString = fmt.Sprintf("AND category IN (%s)", categoryFilterArrayString)
+		filterString += fmt.Sprintf(" AND category IN (%s)", categoryFilterArrayString)
 	}
 	if dto.Status != nil && len(*dto.Status) > 0 {
 		var statusFilterArrayString = ""
@@ -96,17 +96,19 @@ func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error
 			statusFilterArrayString = fmt.Sprintf("%s,%d", statusFilterArrayString, v)
 		}
 
-		filterString = fmt.Sprintf("AND category IN (%s)", statusFilterArrayString)
+		filterString += fmt.Sprintf(" AND status IN (%s)", statusFilterArrayString)
 
 	}
 
+	return filterString + paginationString, nil
 }
 
 func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, error) {
 
 	matchString, _ := buildManticoreMatchString(dto)
+	filterString, _ := buildManticoreFilterString(dto)
 
-	selectString := fmt.Sprintf("SELECT * FROM gamenode WHERE match('%s')%s", matchString, "")
+	selectString := fmt.Sprintf("SELECT * FROM gamenode WHERE match('%s') %s", matchString, filterString)
 
 	return selectString, nil
 
@@ -120,7 +122,7 @@ func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, erro
 //	@Accept       json
 //	@Produce      json
 //	@Param        query   body      schema.GameSearchRequestDto  true  "Account ID"
-//	@Success      200  {array}   schema.GameSearchResponseDto
+//	@Success      200  {object}   schema.GameSearchResponseDto
 //	@Router       /search [post]
 func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, error) {
 
@@ -147,34 +149,28 @@ func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, e
 
 	client := &http.Client{}
 	manticoreResponseObject, err := client.Do(searchRequest)
-	defer manticoreResponseObject.Body.Close()
 
-	if err != nil || manticoreResponseObject == nil || manticoreResponseObject.StatusCode != 200 {
-		return nil, err
+	if err != nil {
+		return nil, errors.New("Manticore is unavailable")
 	}
 
 	var manticoreResponseDto schema.ManticoreSearchResponse
 	err = json.NewDecoder(manticoreResponseObject.Body).Decode(&manticoreResponseDto)
-
-	if err != nil {
-		var errorResponse schema.ManticoreErrorResponse
-		if json.NewDecoder(manticoreResponseObject.Body).Decode(&errorResponse) == nil {
-			_, err := io.ReadAll(manticoreResponseObject.Body)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if &errorResponse != nil {
-			return nil, errors.New(errorResponse.Error)
-		}
-		return nil, err
+	if err != nil || manticoreResponseDto.Hits == nil {
+		return nil, errors.New("failed to fetch data. check query parameters")
 	}
 
 	result, err := ParseManticoreResponse(&manticoreResponseDto)
 	if err != nil {
 		return nil, err
 	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(manticoreResponseObject.Body)
 
 	return result, nil
 }

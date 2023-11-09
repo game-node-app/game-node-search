@@ -1,43 +1,30 @@
 definitions:
-  schema.AnyMap:
-    additionalProperties: true
-    type: object
   schema.GameSearchRequestDto:
     properties:
-      aggs:
+      category:
         items:
-          $ref: '#/definitions/schema.AnyMap'
+          type: integer
         type: array
-      attrFilter:
-        $ref: '#/definitions/schema.AnyMap'
-      expressions:
+      genres:
         items:
-          $ref: '#/definitions/schema.AnyMap'
+          type: string
         type: array
-      fulltextFilter:
-        $ref: '#/definitions/schema.AnyMap'
-      highlight:
-        $ref: '#/definitions/schema.AnyMap'
-      index:
-        type: string
       limit:
         type: integer
-      maxMatches:
+      page:
         type: integer
-      offset:
-        type: integer
+      platforms:
+        items:
+          type: string
+        type: array
       profile:
         type: boolean
       query:
-        $ref: '#/definitions/schema.AnyMap'
-      sort:
+        type: string
+      status:
         items:
-          $ref: '#/definitions/schema.AnyMap'
+          type: integer
         type: array
-      source:
-        $ref: '#/definitions/schema.AnyMap'
-      trackScores:
-        type: boolean
     type: object
   schema.GameSearchResponseDto:
     properties:
@@ -155,9 +142,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/schema.GameSearchResponseDto'
-            type: array
+            $ref: '#/definitions/schema.GameSearchResponseDto'
       summary: Searches using Manticore engine
       tags:
       - search
