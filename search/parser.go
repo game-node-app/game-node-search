@@ -1,108 +1,77 @@
 package search
 
 import (
-	"fmt"
 	"game-node-search/schema"
-	"game-node-search/util"
 	"strconv"
-	"strings"
 	"time"
 )
 
-func ParseManticoreResponse(mr *schema.ManticoreSearchResponse) (*schema.GameSearchResponseDto, error) {
-	mrBytes, _ := json.Marshal(mr)
-	resultJson := make(map[string]interface{})
-	err := json.Unmarshal(mrBytes, &resultJson)
-	if err != nil {
-		fmt.Println("json.Unmarshal failed:", err)
-		return nil, err
+func buildResponseData(mr *schema.ManticoreSearchResponse) *schema.ResponseData {
+	var searchGames []schema.SearchGame
+
+	var data = schema.ResponseData{
+		Took:    mr.Took,
+		Profile: mr.Profile,
 	}
 
-	convertedMap := normalizeManticoreResponse(resultJson)
-	convertedMapBytes, _ := json.Marshal(convertedMap)
-	var searchResponse schema.GameSearchResponseDto
-	err = json.Unmarshal(convertedMapBytes, &searchResponse)
-	if err != nil {
-		fmt.Println("json.Unmarshal failed:", err)
-		return nil, err
-	}
+	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
 
-	return &searchResponse, nil
-}
-
-// Converts all keys of a given type from snake_case to camelCase.
-// Since Go doesn't support type unions, we need to use interface{} and manually check for a map.
-// It's ugly, but it works.
-func normalizeManticoreResponse(src interface{}) *map[string]interface{} {
-	dst := make(map[string]interface{})
-	dateFields := []string{"first_release_date", "created_at", "updated_at"}
-
-	mappedSrc, isMap := src.(map[string]interface{})
-	if isMap && len(mappedSrc) > 0 {
-		for k, v := range mappedSrc {
-			camelCaseKey := stringToCamelCase(k)
-
-			switch v := v.(type) {
-			case map[string]interface{}:
-
-				dst[camelCaseKey] = normalizeManticoreResponse(v)
-
-			case []interface{}:
-				var convertedSlice []interface{}
-				/**
-				This iterates over the array of hits []ManticoreResponseHit
-				*/
-				for _, av := range v {
-					avMap, isAvMap := av.(map[string]interface{})
-					if isAvMap {
-						id, hasId := avMap["_id"]
-						idString, isIdString := id.(string)
-						// _id comes as string by default for some reason
-						if isIdString {
-							idAsUint, _ := strconv.ParseUint(idString, 10, 64)
-							id = idAsUint
-							avMap["_id"] = idAsUint
-						}
-						source, hasSource := avMap["_source"]
-						sourceMap, isSourceMap := source.(map[string]interface{})
-						if hasId && hasSource && isSourceMap {
-							sourceMap["id"] = id
-						}
-					}
-					convertedSlice = append(convertedSlice, normalizeManticoreResponse(av))
-				}
-				dst[camelCaseKey] = convertedSlice
-			case float64:
-				if util.Contains(dateFields, k) {
-					dst[camelCaseKey] = time.Unix(int64(v), 0)
-				} else {
-					dst[camelCaseKey] = v
-				}
-			case int:
-				if util.Contains(dateFields, k) {
-					dst[camelCaseKey] = time.Unix(int64(v), 0)
-				} else {
-					dst[camelCaseKey] = v
-				}
-
-			default:
-				// Convert the key to camel case and assign the value
-				dst[camelCaseKey] = v
+		for _, hit := range mr.Hits.Hits {
+			hitIdNumber, _ := strconv.ParseUint(hit.ID, 10, 64)
+			searchGame := schema.SearchGame{
+				ID:                     hitIdNumber,
+				Name:                   hit.Source.Name,
+				Slug:                   hit.Source.Slug,
+				Summary:                hit.Source.Summary,
+				Storyline:              hit.Source.Storyline,
+				Checksum:               hit.Source.Checksum,
+				AggregatedRating:       hit.Source.AggregatedRating,
+				AggregatedRatingCount:  hit.Source.AggregatedRatingCount,
+				Category:               hit.Source.Category,
+				Status:                 hit.Source.Status,
+				CoverUrl:               hit.Source.CoverUrl,
+				NumViews:               hit.Source.NumViews,
+				NumLikes:               hit.Source.NumLikes,
+				GenresNames:            hit.Source.GenresNames,
+				PlatformsNames:         hit.Source.PlatformsNames,
+				PlatformsAbbreviations: hit.Source.PlatformsAbbreviations,
+				KeywordsNames:          hit.Source.KeywordsNames,
+				Source:                 hit.Source.Source,
+				CreatedAt:              time.Unix(int64(hit.Source.CreatedAt), 0),
+				FirstReleaseDate:       time.Unix(int64(hit.Source.FirstReleaseDate), 0),
+				UpdatedAt:              time.Unix(int64(hit.Source.UpdatedAt), 0),
 			}
+			searchGames = append(searchGames, searchGame)
 		}
 	}
 
-	return &dst
+	data.Items = &searchGames
+
+	return &data
 }
 
-func stringToCamelCase(s string) string {
-	// Removes leading underscore from fields like "_score" and "_id"
-	if strings.HasPrefix(s, "_") {
-		s = s[1:]
+func BuildPaginationInfo(mr *schema.ManticoreSearchResponse, limit *int) *schema.PaginationInfo {
+	limitToUse := limit
+	if limit == nil || *limitToUse == 0 {
+		i := schema.DEFAULT_LIMIT
+		limitToUse = &i
 	}
-	ss := strings.Split(s, "_")
-	for i := 1; i < len(ss); i++ {
-		ss[i] = strings.Title(ss[i])
+	var paginationInfo = schema.PaginationInfo{
+		TotalItems:  0,
+		TotalPages:  0,
+		HasNextPage: false,
 	}
-	return strings.Join(ss, "")
+
+	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
+		hitsLen := uint64(len(mr.Hits.Hits))
+		totalItems := uint64(*mr.Hits.Total)
+		limitU := uint64(*limitToUse)
+
+		paginationInfo.TotalItems = totalItems
+		paginationInfo.TotalPages = uint16((totalItems + limitU - 1) / limitU)
+		paginationInfo.HasNextPage = totalItems > hitsLen
+	}
+
+	return &paginationInfo
+
 }

@@ -15,6 +15,7 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func ValidateSearchRequest(dtoBytes []byte) (*schema.GameSearchRequestDto, error) {
 	var request = schema.GameSearchRequestDto{}
+	fmt.Println(string(dtoBytes))
 	err := json.Unmarshal(dtoBytes, &request)
 	if err != nil {
 		return nil, err
@@ -69,8 +70,8 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error) {
 	limit := dto.Limit
 	if limit == nil || *limit == 0 {
-		u := 20
-		limit = &u
+		i := schema.DEFAULT_LIMIT
+		limit = &i
 	}
 	page := dto.Page
 	if page == nil || *page == 0 {
@@ -108,7 +109,7 @@ func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, erro
 	matchString, _ := buildManticoreMatchString(dto)
 	filterString, _ := buildManticoreFilterString(dto)
 
-	selectString := fmt.Sprintf("SELECT * FROM gamenode WHERE match('%s') %s", matchString, filterString)
+	selectString := fmt.Sprintf("SELECT * FROM gamenode WHERE match('%s') %s;", matchString, filterString)
 
 	return selectString, nil
 
@@ -131,7 +132,7 @@ func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, e
 		return nil, err
 	}
 
-	fmt.Print(reqString)
+	fmt.Println(reqString)
 
 	if err != nil {
 		return nil, err
@@ -160,10 +161,11 @@ func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, e
 		return nil, errors.New("failed to fetch data. check query parameters")
 	}
 
-	result, err := ParseManticoreResponse(&manticoreResponseDto)
-	if err != nil {
-		return nil, err
-	}
+	var response = schema.GameSearchResponseDto{}
+	data := buildResponseData(&manticoreResponseDto)
+	pagination := BuildPaginationInfo(&manticoreResponseDto, dto.Limit)
+	response.Data = *data
+	response.Pagination = *pagination
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -172,5 +174,5 @@ func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, e
 		}
 	}(manticoreResponseObject.Body)
 
-	return result, nil
+	return &response, nil
 }

@@ -5,7 +5,7 @@ import "time"
 type AnyMap map[string]interface{}
 
 type ManticoreResponseHitSource struct {
-	ID                     int64   `json:"id"`
+	ID                     uint64  `json:"id"`
 	Name                   string  `json:"name"`
 	Slug                   string  `json:"slug"`
 	Summary                string  `json:"summary,omitempty"`
@@ -29,7 +29,7 @@ type ManticoreResponseHitSource struct {
 }
 
 type SearchGame struct {
-	ID                     int64     `json:"id"`
+	ID                     uint64    `json:"id"`
 	Name                   string    `json:"name"`
 	Slug                   string    `json:"slug"`
 	Summary                string    `json:"summary,omitempty"`
@@ -132,13 +132,20 @@ type GameSearchResponseHits struct {
 	Hits          []GameSearchResponseHit `json:"hits,omitempty"`
 }
 
+type PaginationInfo struct {
+	TotalItems  uint64 `json:"totalItems"`
+	TotalPages  uint16 `json:"totalPages"`
+	HasNextPage bool   `json:"hasNextPage"`
+}
+type ResponseData struct {
+	Took    *int                    `json:"took,omitempty"`
+	Items   *[]SearchGame           `json:"items,omitempty"`
+	Profile *map[string]interface{} `json:"profile,omitempty"`
+}
+
 type GameSearchResponseDto struct {
-	Took         *int                    `json:"took,omitempty"`
-	TimedOut     *bool                   `json:"timedOut,omitempty"`
-	Aggregations map[string]interface{}  `json:"aggregations,omitempty"`
-	Hits         *GameSearchResponseHits `json:"hits,omitempty"`
-	Profile      *map[string]interface{} `json:"profile,omitempty"`
-	Warning      map[string]interface{}  `json:"warning,omitempty"`
+	Data       ResponseData   `json:"data"`
+	Pagination PaginationInfo `json:"pagination,omitempty"`
 }
 
 type GameSearchRequestDto struct {
@@ -151,3 +158,5 @@ type GameSearchRequestDto struct {
 	Page      *int      `json:"page,omitempty"`
 	Profile   *bool     `json:"profile,omitempty"`
 }
+
+const DEFAULT_LIMIT int = 20

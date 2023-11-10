@@ -14,9 +14,10 @@ func TestSearch(t *testing.T) {
 	searchResponse, err := Handler(reqDto)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, searchResponse.Hits)
-	assert.NotNil(t, searchResponse.Hits.Hits)
-	assert.Greater(t, *searchResponse.Hits.Total, 0)
-	assert.Greater(t, len(searchResponse.Hits.Hits), 0)
+	assert.NotNil(t, searchResponse.Data.Items)
+	assert.NotNil(t, searchResponse.Pagination)
+	greaterThan := uint64(0)
+	assert.Greater(t, searchResponse.Pagination.TotalItems, greaterThan)
+	assert.Greater(t, len(*searchResponse.Data.Items), 0)
 
 }

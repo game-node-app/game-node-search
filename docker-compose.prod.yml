@@ -32,12 +32,13 @@ services:
     depends_on:
       - manticore
 
-    command: ["go", "run", "main.go"]
+    working_dir: "/app"
 
     # Most of the env vars are loaded directly from .env, we only need to override some to make sure
     # the docker resources are accessible.
     environment:
       MANTICORE_URL: http://manticore:9308
+      PORT: ":9000"
 
     restart: always
 
@@ -47,11 +48,8 @@ services:
     networks:
       - game_node_app
 
-    volumes:
-      - search:/app
-
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
 
 
 networks:
@@ -60,5 +58,4 @@ networks:
 
 volumes:
   manticore:
-  search:
 
