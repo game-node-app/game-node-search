@@ -28,43 +28,31 @@ definitions:
     type: object
   schema.GameSearchResponseDto:
     properties:
-      aggregations:
-        additionalProperties: true
-        type: object
-      hits:
-        $ref: '#/definitions/schema.GameSearchResponseHits'
+      data:
+        $ref: '#/definitions/schema.ResponseData'
+      pagination:
+        $ref: '#/definitions/schema.PaginationInfo'
+    type: object
+  schema.PaginationInfo:
+    properties:
+      hasNextPage:
+        type: boolean
+      totalItems:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  schema.ResponseData:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/schema.SearchGame'
+        type: array
       profile:
         additionalProperties: true
         type: object
-      timedOut:
-        type: boolean
       took:
         type: integer
-      warning:
-        additionalProperties: true
-        type: object
-    type: object
-  schema.GameSearchResponseHit:
-    properties:
-      id:
-        type: integer
-      score:
-        type: integer
-      source:
-        $ref: '#/definitions/schema.SearchGame'
-    type: object
-  schema.GameSearchResponseHits:
-    properties:
-      hits:
-        items:
-          $ref: '#/definitions/schema.GameSearchResponseHit'
-        type: array
-      maxScore:
-        type: number
-      total:
-        type: integer
-      totalRelation:
-        type: string
     type: object
   schema.SearchGame:
     properties:

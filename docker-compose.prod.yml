@@ -7,7 +7,7 @@ services:
     environment:
       - EXTRA=1
       - CREATE_PLAIN_TABLES=gamenode:0 6,15 * * *
-    restart: no
+    restart: always
     ulimits:
       nproc: 65535
       nofile:

@@ -85,16 +85,25 @@ func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error
 
 	if dto.Category != nil && len(*dto.Category) > 0 {
 		var categoryFilterArrayString = ""
-		for _, v := range *dto.Category {
-			categoryFilterArrayString = fmt.Sprintf("%s,%d", categoryFilterArrayString, v)
+		for i, v := range *dto.Category {
+			if i > 0 {
+				categoryFilterArrayString = fmt.Sprintf("%s,%d", categoryFilterArrayString, v)
+				continue
+			}
+			categoryFilterArrayString = fmt.Sprintf("%d", v)
+
 		}
 
 		filterString += fmt.Sprintf(" AND category IN (%s)", categoryFilterArrayString)
 	}
 	if dto.Status != nil && len(*dto.Status) > 0 {
 		var statusFilterArrayString = ""
-		for _, v := range *dto.Status {
-			statusFilterArrayString = fmt.Sprintf("%s,%d", statusFilterArrayString, v)
+		for i, v := range *dto.Status {
+			if i > 0 {
+				statusFilterArrayString = fmt.Sprintf("%s,%d", statusFilterArrayString, v)
+				continue
+			}
+			statusFilterArrayString = fmt.Sprintf("%d", v)
 		}
 
 		filterString += fmt.Sprintf(" AND status IN (%s)", statusFilterArrayString)

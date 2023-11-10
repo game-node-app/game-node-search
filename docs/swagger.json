@@ -96,60 +96,43 @@
         "schema.GameSearchResponseDto": {
             "type": "object",
             "properties": {
-                "aggregations": {
-                    "type": "object",
-                    "additionalProperties": true
+                "data": {
+                    "$ref": "#/definitions/schema.ResponseData"
                 },
-                "hits": {
-                    "$ref": "#/definitions/schema.GameSearchResponseHits"
+                "pagination": {
+                    "$ref": "#/definitions/schema.PaginationInfo"
+                }
+            }
+        },
+        "schema.PaginationInfo": {
+            "type": "object",
+            "properties": {
+                "hasNextPage": {
+                    "type": "boolean"
+                },
+                "totalItems": {
+                    "type": "integer"
+                },
+                "totalPages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "schema.ResponseData": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.SearchGame"
+                    }
                 },
                 "profile": {
                     "type": "object",
                     "additionalProperties": true
                 },
-                "timedOut": {
-                    "type": "boolean"
-                },
                 "took": {
                     "type": "integer"
-                },
-                "warning": {
-                    "type": "object",
-                    "additionalProperties": true
-                }
-            }
-        },
-        "schema.GameSearchResponseHit": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "score": {
-                    "type": "integer"
-                },
-                "source": {
-                    "$ref": "#/definitions/schema.SearchGame"
-                }
-            }
-        },
-        "schema.GameSearchResponseHits": {
-            "type": "object",
-            "properties": {
-                "hits": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.GameSearchResponseHit"
-                    }
-                },
-                "maxScore": {
-                    "type": "number"
-                },
-                "total": {
-                    "type": "integer"
-                },
-                "totalRelation": {
-                    "type": "string"
                 }
             }
         },
