@@ -77,7 +77,9 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 		}
 	}
 
-	return matchString + genresMatchString + platformsMatchString, nil
+	finalMatchString := fmt.Sprintf("%s%s%s%s", matchString, genresMatchString, themesMatchString, platformsMatchString)
+
+	return finalMatchString, nil
 
 }
 
