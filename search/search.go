@@ -29,6 +29,7 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 	var matchString string
 	query := &dto.Query
 	genres := dto.Genres
+	themes := dto.Themes
 	platforms := dto.Platforms
 
 	if query == nil {
@@ -38,6 +39,7 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 	// Matches all fields
 	matchString = fmt.Sprintf("@* %s", *query)
 	var genresMatchString = ""
+	var themesMatchString = ""
 	var platformsMatchString = ""
 
 	if genres != nil && len(*genres) > 0 {
@@ -48,6 +50,18 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 				continue
 			}
 			genresMatchString = fmt.Sprintf("%s%s", genresMatchString, v)
+		}
+
+	}
+
+	if themes != nil && len(*themes) > 0 {
+		themesMatchString = "@themes_names "
+		for i, v := range *themes {
+			if i > 0 {
+				themesMatchString = fmt.Sprintf("%s|%s", themesMatchString, v)
+				continue
+			}
+			themesMatchString = fmt.Sprintf("%s|%s", themesMatchString, v)
 		}
 
 	}

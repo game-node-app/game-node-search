@@ -153,6 +153,7 @@ type GameSearchRequestDto struct {
 	Category  *[]int    `json:"category,omitempty"`
 	Status    *[]int    `json:"status,omitempty"`
 	Genres    *[]string `json:"genres"`
+	Themes    *[]string `json:"themes"`
 	Platforms *[]string `json:"platforms"`
 	Limit     *int      `json:"limit,omitempty"`
 	Page      *int      `json:"page,omitempty"`
