@@ -43,7 +43,7 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 	var platformsMatchString = ""
 
 	if genres != nil && len(*genres) > 0 {
-		genresMatchString = "@genres_names "
+		genresMatchString = " @genres_names "
 		for i, v := range *genres {
 			if i > 0 {
 				genresMatchString = fmt.Sprintf("%s|%s", genresMatchString, v)
@@ -55,7 +55,7 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 	}
 
 	if themes != nil && len(*themes) > 0 {
-		themesMatchString = "@themes_names "
+		themesMatchString = " @themes_names "
 		for i, v := range *themes {
 			if i > 0 {
 				themesMatchString = fmt.Sprintf("%s|%s", themesMatchString, v)
@@ -67,7 +67,7 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 	}
 
 	if platforms != nil && len(*platforms) > 0 {
-		platformsMatchString = "@(platforms_names,platforms_abbreviations) "
+		platformsMatchString = " @(platforms_names,platforms_abbreviations) "
 		for i, v := range *platforms {
 			if i > 0 {
 				platformsMatchString = fmt.Sprintf("%s|%s", platformsMatchString, v)
