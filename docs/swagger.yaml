@@ -25,6 +25,10 @@ definitions:
         items:
           type: integer
         type: array
+      themes:
+        items:
+          type: string
+        type: array
     type: object
   schema.GameSearchResponseDto:
     properties:
@@ -95,6 +99,8 @@ definitions:
       storyline:
         type: string
       summary:
+        type: string
+      themesNames:
         type: string
       updatedAt:
         type: string

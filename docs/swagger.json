@@ -90,6 +90,12 @@
                     "items": {
                         "type": "integer"
                     }
+                },
+                "themes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -197,6 +203,9 @@
                     "type": "string"
                 },
                 "summary": {
+                    "type": "string"
+                },
+                "themesNames": {
                     "type": "string"
                 },
                 "updatedAt": {

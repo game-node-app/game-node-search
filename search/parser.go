@@ -15,7 +15,6 @@ func buildResponseData(mr *schema.ManticoreSearchResponse) *schema.ResponseData 
 	}
 
 	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
-
 		for _, hit := range mr.Hits.Hits {
 			hitIdNumber, _ := strconv.ParseUint(hit.ID, 10, 64)
 			searchGame := schema.SearchGame{
@@ -33,6 +32,7 @@ func buildResponseData(mr *schema.ManticoreSearchResponse) *schema.ResponseData 
 				NumViews:               hit.Source.NumViews,
 				NumLikes:               hit.Source.NumLikes,
 				GenresNames:            hit.Source.GenresNames,
+				ThemesNames:            hit.Source.ThemesNames,
 				PlatformsNames:         hit.Source.PlatformsNames,
 				PlatformsAbbreviations: hit.Source.PlatformsAbbreviations,
 				KeywordsNames:          hit.Source.KeywordsNames,

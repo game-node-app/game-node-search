@@ -98,6 +98,12 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "themes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -205,6 +211,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "summary": {
+                    "type": "string"
+                },
+                "themesNames": {
                     "type": "string"
                 },
                 "updatedAt": {

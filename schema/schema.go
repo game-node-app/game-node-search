@@ -26,6 +26,7 @@ type ManticoreResponseHitSource struct {
 	PlatformsAbbreviations string  `json:"platforms_abbreviations,omitempty"`
 	KeywordsNames          string  `json:"keywords_names,omitempty"`
 	Source                 string  `json:"source"`
+	ThemesNames            string  `json:"themes_names,omitempty"`
 }
 
 type SearchGame struct {
@@ -46,6 +47,7 @@ type SearchGame struct {
 	NumViews               uint64    `json:"numViews,omitempty"`
 	NumLikes               uint64    `json:"numLikes,omitempty"`
 	GenresNames            string    `json:"genresNames,omitempty"`
+	ThemesNames            string    `json:"themesNames,omitempty"`
 	PlatformsNames         string    `json:"platformsNames,omitempty"`
 	PlatformsAbbreviations string    `json:"platformsAbbreviations,omitempty"`
 	KeywordsNames          string    `json:"keywordsNames,omitempty"`
