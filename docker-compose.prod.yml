@@ -19,14 +19,14 @@ services:
 
     volumes:
       - manticore:/var/lib/manticore
-      - ./manticore.conf:/etc/manticoresearch/manticore.conf
+      - ${MANTICORE_CONFIG_PATH}:/etc/manticoresearch/manticore.conf
 
     networks:
       - game_node_app
 
   search:
     working_dir: "/app"
-    image: lamarcke/game-node-search:latest
+    image: lamarcke/game-node-search:0.8.0
 
     # Most of the env vars are loaded directly from .env, we only need to override some to make sure
     # the docker resources are accessible.
@@ -41,9 +41,6 @@ services:
 
     networks:
       - game_node_app
-
-    ports:
-      - "127.0.0.1:9000:9000"
 
 
 networks:
