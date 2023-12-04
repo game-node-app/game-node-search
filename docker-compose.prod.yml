@@ -6,7 +6,7 @@ services:
     image: manticoresearch/manticore:6.2.12
     environment:
       - EXTRA=1
-      - CREATE_PLAIN_TABLES=gamenode:0 6,15 * * *
+      - CREATE_PLAIN_TABLES=gamenode:0 15 * * *
     restart: always
     ulimits:
       nproc: 65535
@@ -25,14 +25,8 @@ services:
       - game_node_app
 
   search:
-    build:
-      context: .
-      dockerfile: Dockerfile
-
-    depends_on:
-      - manticore
-
     working_dir: "/app"
+    image: lamarcke/game-node-search:latest
 
     # Most of the env vars are loaded directly from .env, we only need to override some to make sure
     # the docker resources are accessible.

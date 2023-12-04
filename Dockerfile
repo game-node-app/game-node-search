@@ -14,5 +14,4 @@ COPY . .
 EXPOSE 9000
 
 # Run the binary program produced by `go install`
-
 CMD go run main.go
