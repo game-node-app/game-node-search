@@ -19,8 +19,6 @@ type ManticoreResponseHitSource struct {
 	CreatedAt              uint64  `json:"created_at"`
 	UpdatedAt              uint64  `json:"updated_at"`
 	CoverUrl               string  `json:"cover_url,omitempty"`
-	NumViews               uint64  `json:"num_views,omitempty"`
-	NumLikes               uint64  `json:"num_likes,omitempty"`
 	GenresNames            string  `json:"genres_names,omitempty"`
 	PlatformsNames         string  `json:"platforms_names,omitempty"`
 	PlatformsAbbreviations string  `json:"platforms_abbreviations,omitempty"`
@@ -44,8 +42,6 @@ type SearchGame struct {
 	CreatedAt              time.Time `json:"createdAt"`
 	UpdatedAt              time.Time `json:"updatedAt"`
 	CoverUrl               string    `json:"coverUrl,omitempty"`
-	NumViews               uint64    `json:"numViews,omitempty"`
-	NumLikes               uint64    `json:"numLikes,omitempty"`
 	GenresNames            string    `json:"genresNames,omitempty"`
 	ThemesNames            string    `json:"themesNames,omitempty"`
 	PlatformsNames         string    `json:"platformsNames,omitempty"`

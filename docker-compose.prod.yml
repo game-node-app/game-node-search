@@ -28,8 +28,6 @@ services:
     working_dir: "/app"
     image: lamarcke/game-node-search:0.8.0
 
-    # Most of the env vars are loaded directly from .env, we only need to override some to make sure
-    # the docker resources are accessible.
     environment:
       MANTICORE_URL: http://manticore:9308
       PORT: ":9000"
