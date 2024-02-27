@@ -13,8 +13,8 @@ This API is very simple. It has a single endpoint, which receives a request, tra
 
 ### Important
 If you are a developer trying to contribute to either `game-node-web` or any other frontend client, keep in mind that you don't need to host your own instance of `game-node-search`.  
-You can just use our public version (which has all data we have available).  
-`https://search.gamenode.com.br` (equivalent to `localhost:9000`).
+You can just use our public version (which has all data we have available). Just use the following as the search system's URL:
+`https://search.gamenode.com.br`.
 
 ## Installation
 
@@ -39,6 +39,6 @@ This will start the game-node-search API on port `9000`. You can navigate to `lo
 
 ### Where do i get data?
 The Manticore's database is populated by entries in the GameNode's MySQL database.  
-This means you need to set up `game-node-server` and `game-node-sync` to download and save IGDB entries locally.  
+This means you need to set up `game-node-server` and `game-node-sync-igdb` to download and save IGDB entries locally.  
 
 Please refer to the respective repositories on how to set them up (both are a `docker compose up` away).  
