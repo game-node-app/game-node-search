@@ -5,8 +5,9 @@ services:
   manticore:
     image: manticoresearch/manticore:6.2.12
     environment:
-      - EXTRA=1
-      - CREATE_PLAIN_TABLES=gamenode:0 15 * * *
+      EXTRA: 1
+      CREATE_PLAIN_TABLES: gamenode:0 15 * * *
+
     restart: always
     ulimits:
       nproc: 65535
@@ -19,14 +20,14 @@ services:
 
     volumes:
       - manticore:/var/lib/manticore
-      - ${MANTICORE_CONFIG_PATH}:/etc/manticoresearch/manticore.conf
+      - ./manticore.conf:/etc/manticoresearch/manticore.conf
 
     networks:
       - game_node_app
 
   search:
     working_dir: "/app"
-    image: lamarcke/game-node-search:0.8.0
+    image: lamarcke/game-node-search:latest
 
     environment:
       MANTICORE_URL: http://manticore:9308
@@ -34,8 +35,8 @@ services:
 
     restart: always
 
-    #    deploy:
-    #      replicas: 3
+    deploy:
+      replicas: 3
 
     networks:
       - game_node_app
