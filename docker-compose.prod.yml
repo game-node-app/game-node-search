@@ -20,7 +20,7 @@ services:
 
     volumes:
       - manticore:/var/lib/manticore
-      - ./manticore.conf:/etc/manticoresearch/manticore.conf
+      - ${MANTICORE_CONFIG_PATH}:/etc/manticoresearch/manticore.conf
 
     networks:
       - game_node_app
