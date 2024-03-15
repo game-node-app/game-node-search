@@ -29,8 +29,6 @@ func buildResponseData(mr *schema.ManticoreSearchResponse) *schema.ResponseData 
 				Category:               hit.Source.Category,
 				Status:                 hit.Source.Status,
 				CoverUrl:               hit.Source.CoverUrl,
-				NumViews:               hit.Source.NumViews,
-				NumLikes:               hit.Source.NumLikes,
 				GenresNames:            hit.Source.GenresNames,
 				ThemesNames:            hit.Source.ThemesNames,
 				PlatformsNames:         hit.Source.PlatformsNames,
