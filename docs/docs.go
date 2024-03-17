@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/search": {
+        "/search/games": {
             "post": {
                 "description": "Returns a parsed search response from the Manticore engine",
                 "consumes": [
@@ -36,7 +36,7 @@ const docTemplate = `{
                 "tags": [
                     "search"
                 ],
-                "summary": "Searches using Manticore engine",
+                "summary": "Searches for games using Manticore engine",
                 "parameters": [
                     {
                         "description": "Account ID",
@@ -185,12 +185,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "numLikes": {
-                    "type": "integer"
-                },
-                "numViews": {
-                    "type": "integer"
                 },
                 "platformsAbbreviations": {
                     "type": "string"

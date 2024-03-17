@@ -82,10 +82,6 @@ definitions:
         type: string
       name:
         type: string
-      numLikes:
-        type: integer
-      numViews:
-        type: integer
       platformsAbbreviations:
         type: string
       platformsNames:
@@ -118,7 +114,7 @@ info:
   title: GameNode Search API
   version: "1.0"
 paths:
-  /search:
+  /search/games:
     post:
       consumes:
       - application/json
@@ -137,7 +133,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/schema.GameSearchResponseDto'
-      summary: Searches using Manticore engine
+      summary: Searches for games using Manticore engine
       tags:
       - search
 swagger: "2.0"

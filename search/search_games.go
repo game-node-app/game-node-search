@@ -142,14 +142,14 @@ func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, erro
 
 // Handler search handler
 //
-//	@Summary      Searches using Manticore engine
+//	@Summary      Searches for games using Manticore engine
 //	@Description  Returns a parsed search response from the Manticore engine
 //	@Tags         search
 //	@Accept       json
 //	@Produce      json
 //	@Param        query   body      schema.GameSearchRequestDto  true  "Account ID"
 //	@Success      200  {object}   schema.GameSearchResponseDto
-//	@Router       /search [post]
+//	@Router       /search/games [post]
 func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, error) {
 
 	reqString, err := buildManticoreSearchRequest(dto)

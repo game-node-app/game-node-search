@@ -52,7 +52,7 @@ func main() {
 			return
 		}
 	})
-	r.Post("/search", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/search/games", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		reqDtoBytes, _ := io.ReadAll(r.Body)
 		reqDto, err := search.ValidateSearchRequest(reqDtoBytes)

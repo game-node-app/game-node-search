@@ -16,7 +16,7 @@
         "version": "1.0"
     },
     "paths": {
-        "/search": {
+        "/search/games": {
             "post": {
                 "description": "Returns a parsed search response from the Manticore engine",
                 "consumes": [
@@ -28,7 +28,7 @@
                 "tags": [
                     "search"
                 ],
-                "summary": "Searches using Manticore engine",
+                "summary": "Searches for games using Manticore engine",
                 "parameters": [
                     {
                         "description": "Account ID",
@@ -177,12 +177,6 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "numLikes": {
-                    "type": "integer"
-                },
-                "numViews": {
-                    "type": "integer"
                 },
                 "platformsAbbreviations": {
                     "type": "string"
