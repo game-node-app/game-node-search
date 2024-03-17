@@ -34,6 +34,8 @@ func buildResponseData(mr *schema.ManticoreSearchResponse) *schema.ResponseData 
 				PlatformsNames:         hit.Source.PlatformsNames,
 				PlatformsAbbreviations: hit.Source.PlatformsAbbreviations,
 				KeywordsNames:          hit.Source.KeywordsNames,
+				NumViews:               hit.Source.NumViews,
+				NumLikes:               hit.Source.NumLikes,
 				Source:                 hit.Source.Source,
 				CreatedAt:              time.Unix(int64(hit.Source.CreatedAt), 0),
 				FirstReleaseDate:       time.Unix(int64(hit.Source.FirstReleaseDate), 0),

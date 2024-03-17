@@ -133,6 +133,7 @@ func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, erro
 
 	matchString, _ := buildManticoreMatchString(dto)
 	filterString, _ := buildManticoreFilterString(dto)
+	var orderString = "ORDER BY num_likes DESC"
 
 	selectString := fmt.Sprintf("SELECT * FROM gamenode WHERE match('%s') %s;", matchString, filterString)
 
