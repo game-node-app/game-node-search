@@ -129,13 +129,18 @@ func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error
 	return filterString + paginationString, nil
 }
 
+func buildManticoreOrderString(dto *schema.GameSearchRequestDto) string {
+	return "ORDER BY num_likes DESC, num_views DESC"
+}
+
 func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, error) {
 
 	matchString, _ := buildManticoreMatchString(dto)
 	filterString, _ := buildManticoreFilterString(dto)
-	var orderString = "ORDER BY num_likes DESC"
+	// TODO: finish this
+	orderString := buildManticoreOrderString(dto)
 
-	selectString := fmt.Sprintf("SELECT * FROM gamenode WHERE match('%s') %s;", matchString, filterString)
+	selectString := fmt.Sprintf("SELECT * FROM games WHERE match('%s') %s %s;", matchString, filterString, orderString)
 
 	return selectString, nil
 
