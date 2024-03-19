@@ -28,7 +28,7 @@ func ValidateUserSearchRequest(dtoBytes []byte) (*schema.UserSearchRequestDto, e
 }
 
 func buildManticoreMatchString(dto *schema.UserSearchRequestDto) string {
-	return fmt.Sprintf("@username %s", dto.Query)
+	return fmt.Sprintf("@username %s*", dto.Query)
 }
 
 func buildManticorePaginationString(dto *schema.UserSearchRequestDto) string {
