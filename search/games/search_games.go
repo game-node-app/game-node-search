@@ -1,4 +1,4 @@
-package search
+package games
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-func ValidateSearchRequest(dtoBytes []byte) (*schema.GameSearchRequestDto, error) {
+func ValidateGameSearchRequest(dtoBytes []byte) (*schema.GameSearchRequestDto, error) {
 	var request = schema.GameSearchRequestDto{}
 	fmt.Println(string(dtoBytes))
 	err := json.Unmarshal(dtoBytes, &request)
@@ -84,21 +84,7 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 }
 
 func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error) {
-	limit := dto.Limit
-	if limit == nil || *limit == 0 {
-		i := schema.DEFAULT_LIMIT
-		limit = &i
-	}
-	page := dto.Page
-	if page == nil || *page == 0 {
-		u := 1
-		page = &u
-	}
-
-	offset := (*page - 1) * *limit
-	paginationString := fmt.Sprintf(" LIMIT %d OFFSET %d", *limit, offset)
 	var filterString = ""
-
 	if dto.Category != nil && len(*dto.Category) > 0 {
 		var categoryFilterArrayString = ""
 		for i, v := range *dto.Category {
@@ -126,10 +112,28 @@ func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error
 
 	}
 
-	return filterString + paginationString, nil
+	return filterString, nil
 }
 
-func buildManticoreOrderString(dto *schema.GameSearchRequestDto) string {
+func buildManticorePaginationString(dto *schema.GameSearchRequestDto) string {
+	limit := dto.Limit
+	if limit == nil || *limit == 0 {
+		i := schema.DEFAULT_LIMIT
+		limit = &i
+	}
+	page := dto.Page
+	if page == nil || *page == 0 {
+		u := 1
+		page = &u
+	}
+
+	offset := (*page - 1) * *limit
+	paginationString := fmt.Sprintf("LIMIT %d OFFSET %d", *limit, offset)
+
+	return paginationString
+}
+
+func buildManticoreOrderString() string {
 	return "ORDER BY num_likes DESC, num_views DESC"
 }
 
@@ -137,16 +141,16 @@ func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, erro
 
 	matchString, _ := buildManticoreMatchString(dto)
 	filterString, _ := buildManticoreFilterString(dto)
-	// TODO: finish this
-	orderString := buildManticoreOrderString(dto)
+	paginationString := buildManticorePaginationString(dto)
+	orderString := buildManticoreOrderString()
 
-	selectString := fmt.Sprintf("SELECT * FROM games WHERE match('%s') %s %s;", matchString, filterString, orderString)
+	selectString := fmt.Sprintf("SELECT * FROM games WHERE match('%s') %s %s %s;", matchString, filterString, paginationString, orderString)
 
 	return selectString, nil
 
 }
 
-// Handler search handler
+// GameSearchHandler search handler
 //
 //	@Summary      Searches for games using Manticore engine
 //	@Description  Returns a parsed search response from the Manticore engine
@@ -156,7 +160,7 @@ func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, erro
 //	@Param        query   body      schema.GameSearchRequestDto  true  "Account ID"
 //	@Success      200  {object}   schema.GameSearchResponseDto
 //	@Router       /search/games [post]
-func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, error) {
+func GameSearchHandler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, error) {
 
 	reqString, err := buildManticoreSearchRequest(dto)
 	if err != nil {
@@ -194,7 +198,7 @@ func Handler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResponseDto, e
 
 	var response = schema.GameSearchResponseDto{}
 	data := buildResponseData(&manticoreResponseDto)
-	pagination := BuildPaginationInfo(&manticoreResponseDto, dto.Limit)
+	pagination := buildPaginationInfo(&manticoreResponseDto, dto.Limit)
 	response.Data = *data
 	response.Pagination = *pagination
 
