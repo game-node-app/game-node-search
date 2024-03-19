@@ -82,6 +82,10 @@ definitions:
         type: string
       name:
         type: string
+      numLikes:
+        type: integer
+      numViews:
+        type: integer
       platformsAbbreviations:
         type: string
       platformsNames:
@@ -100,6 +104,41 @@ definitions:
         type: string
       updatedAt:
         type: string
+    type: object
+  schema.UserDto:
+    properties:
+      userId:
+        type: string
+      username:
+        type: string
+    type: object
+  schema.UserSearchRequestDto:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      query:
+        type: string
+    type: object
+  schema.UserSearchResponseData:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/schema.UserDto'
+        type: array
+      profile:
+        additionalProperties: true
+        type: object
+      took:
+        type: integer
+    type: object
+  schema.UserSearchResponseDto:
+    properties:
+      data:
+        $ref: '#/definitions/schema.UserSearchResponseData'
+      pagination:
+        $ref: '#/definitions/schema.PaginationInfo'
     type: object
 info:
   contact:
@@ -134,6 +173,28 @@ paths:
           schema:
             $ref: '#/definitions/schema.GameSearchResponseDto'
       summary: Searches for games using Manticore engine
+      tags:
+      - search
+  /search/users:
+    post:
+      consumes:
+      - application/json
+      description: Returns a parsed search response from the Manticore engine
+      parameters:
+      - description: Account ID
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/schema.UserSearchRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schema.UserSearchResponseDto'
+      summary: Searches for users using Manticore engine
       tags:
       - search
 swagger: "2.0"

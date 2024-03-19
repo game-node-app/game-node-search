@@ -58,6 +58,16 @@ func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (string, erro
 	return selectString, nil
 }
 
+// UserSearchHandler search handler
+//
+//	@Summary      Searches for users using Manticore engine
+//	@Description  Returns a parsed search response from the Manticore engine
+//	@Tags         search
+//	@Accept       json
+//	@Produce      json
+//	@Param        query   body      schema.UserSearchRequestDto  true  "Account ID"
+//	@Success      200  {object}   schema.UserSearchResponseDto
+//	@Router       /search/users [post]
 func UserSearchHandler(dto *schema.UserSearchRequestDto) (*schema.UserSearchResponseDto, error) {
 	reqString, err := buildManticoreSearchRequest(dto)
 	if err != nil {

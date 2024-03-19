@@ -57,6 +57,40 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/search/users": {
+            "post": {
+                "description": "Returns a parsed search response from the Manticore engine",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "search"
+                ],
+                "summary": "Searches for users using Manticore engine",
+                "parameters": [
+                    {
+                        "description": "Account ID",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schema.UserSearchRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schema.UserSearchResponseDto"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -186,6 +220,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "numLikes": {
+                    "type": "integer"
+                },
+                "numViews": {
+                    "type": "integer"
+                },
                 "platformsAbbreviations": {
                     "type": "string"
                 },
@@ -212,6 +252,60 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "schema.UserDto": {
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.UserSearchRequestDto": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.UserSearchResponseData": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.UserDto"
+                    }
+                },
+                "profile": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "took": {
+                    "type": "integer"
+                }
+            }
+        },
+        "schema.UserSearchResponseDto": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/schema.UserSearchResponseData"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/schema.PaginationInfo"
                 }
             }
         }
