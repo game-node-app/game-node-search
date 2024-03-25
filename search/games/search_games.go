@@ -37,7 +37,7 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 	}
 
 	// Matches all fields
-	matchString = fmt.Sprintf("@* %s", *query)
+	matchString = fmt.Sprintf("@name %s", *query)
 	var genresMatchString = ""
 	var themesMatchString = ""
 	var platformsMatchString = ""
