@@ -134,7 +134,7 @@ func buildManticorePaginationString(dto *schema.GameSearchRequestDto) string {
 }
 
 func buildManticoreOrderString() string {
-	return "ORDER BY num_likes DESC, num_views DESC"
+	return "ORDER BY category ASC, num_likes DESC, num_views DESC"
 }
 
 func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, error) {
