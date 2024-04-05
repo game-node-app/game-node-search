@@ -53,7 +53,7 @@ func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (string, erro
 	matchString := buildManticoreMatchString(dto)
 	paginationString := buildManticorePaginationString(dto)
 
-	selectString := fmt.Sprintf("SELECT * FROM users WHERE MATCH(%s) %s", matchString, paginationString)
+	selectString := fmt.Sprintf("SELECT * FROM users WHERE MATCH('%s') %s", matchString, paginationString)
 
 	return selectString, nil
 }
@@ -73,6 +73,8 @@ func UserSearchHandler(dto *schema.UserSearchRequestDto) (*schema.UserSearchResp
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(reqString)
 
 	urlParams := url2.Values{}
 	urlParams.Set("query", reqString)
