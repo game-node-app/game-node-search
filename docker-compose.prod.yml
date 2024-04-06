@@ -6,7 +6,7 @@ services:
     image: manticoresearch/manticore:6.2.12
     environment:
       EXTRA: 1
-      CREATE_PLAIN_TABLES: games:0 2 * * *;users:0 * * * *
+      CREATE_PLAIN_TABLES: games:0 3 * * *;users:0 * * * *;games;users
 
     restart: always
     ulimits:
