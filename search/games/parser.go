@@ -2,9 +2,18 @@ package games
 
 import (
 	"game-node-search/schema"
+	"regexp"
 	"strconv"
 	"time"
 )
+
+func parseQuery(q string) string {
+	var result = q
+	quotesRegx := regexp.MustCompile(`['"]`)
+	result = quotesRegx.ReplaceAllString(result, "")
+
+	return result
+}
 
 func buildPaginationInfo(mr *schema.ManticoreSearchResponse, limit *int) *schema.PaginationInfo {
 	limitToUse := limit
