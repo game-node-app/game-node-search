@@ -200,7 +200,7 @@ func GameSearchHandler(dto *schema.GameSearchRequestDto) (*schema.GameSearchResp
 
 	var response = schema.GameSearchResponseDto{}
 	data := buildResponseData(&manticoreResponseDto)
-	pagination := buildPaginationInfo(&manticoreResponseDto, dto.Limit)
+	pagination := buildPaginationInfo(&manticoreResponseDto, dto.Limit, dto.Page)
 	response.Data = *data
 	response.Pagination = *pagination
 

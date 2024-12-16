@@ -15,7 +15,7 @@ func parseQuery(q string) string {
 	return result
 }
 
-func buildPaginationInfo(mr *schema.ManticoreSearchResponse, limit *int) *schema.PaginationInfo {
+func buildPaginationInfo(mr *schema.ManticoreSearchResponse, limit *int, currentPage *int) *schema.PaginationInfo {
 	limitToUse := limit
 	if limit == nil || *limitToUse == 0 {
 		i := schema.DEFAULT_LIMIT
@@ -28,13 +28,16 @@ func buildPaginationInfo(mr *schema.ManticoreSearchResponse, limit *int) *schema
 	}
 
 	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
+		limitU := uint64(*limitToUse)
 		hitsLen := uint64(len(mr.Hits.Hits))
 		totalItems := uint64(*mr.Hits.Total)
-		limitU := uint64(*limitToUse)
+		totalPages := uint16((totalItems + limitU - 1) / limitU)
+
+		currentPageU := uint16(*currentPage)
 
 		paginationInfo.TotalItems = totalItems
-		paginationInfo.TotalPages = uint16((totalItems + limitU - 1) / limitU)
-		paginationInfo.HasNextPage = totalItems > hitsLen
+		paginationInfo.TotalPages = totalPages
+		paginationInfo.HasNextPage = totalItems > hitsLen && currentPageU < totalPages
 	}
 
 	return &paginationInfo
