@@ -26,7 +26,11 @@ func ValidateGameSearchRequest(dtoBytes []byte) (*schema.GameSearchRequestDto, e
 // buildManticoreMatchString
 // Builds the string to be inserted in the 'match' SQL function.
 func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error) {
+	var matchString string
 	query := &dto.Query
+	genres := dto.Genres
+	themes := dto.Themes
+	platforms := dto.Platforms
 
 	if query == nil {
 		return "", errors.New("query parameter empty")
@@ -34,7 +38,51 @@ func buildManticoreMatchString(dto *schema.GameSearchRequestDto) (string, error)
 
 	parsedQuery := parseQuery(*query)
 
-	return parsedQuery, nil
+	// Matches name and alternative_names fields
+	matchString = fmt.Sprintf("@(name,alternative_names) %s", parsedQuery)
+	var genresMatchString = ""
+	var themesMatchString = ""
+	var platformsMatchString = ""
+
+	if genres != nil && len(*genres) > 0 {
+		genresMatchString = " @genres_names "
+		for i, v := range *genres {
+			if i > 0 {
+				genresMatchString = fmt.Sprintf("%s|%s", genresMatchString, v)
+				continue
+			}
+			genresMatchString = fmt.Sprintf("%s%s", genresMatchString, v)
+		}
+
+	}
+
+	if themes != nil && len(*themes) > 0 {
+		themesMatchString = " @themes_names "
+		for i, v := range *themes {
+			if i > 0 {
+				themesMatchString = fmt.Sprintf("%s|%s", themesMatchString, v)
+				continue
+			}
+			themesMatchString = fmt.Sprintf("%s|%s", themesMatchString, v)
+		}
+
+	}
+
+	if platforms != nil && len(*platforms) > 0 {
+		platformsMatchString = " @(platforms_names,platforms_abbreviations) "
+		for i, v := range *platforms {
+			if i > 0 {
+				platformsMatchString = fmt.Sprintf("%s|%s", platformsMatchString, v)
+				continue
+			}
+			platformsMatchString = fmt.Sprintf("%s%s", platformsMatchString, v)
+		}
+	}
+
+	finalMatchString := fmt.Sprintf("%s%s%s%s", matchString, genresMatchString, themesMatchString, platformsMatchString)
+
+	return finalMatchString, nil
+
 }
 
 func buildManticoreFilterString(dto *schema.GameSearchRequestDto) (string, error) {
@@ -94,11 +142,11 @@ func buildManticoreOrderString() string {
 func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, error) {
 
 	matchString, _ := buildManticoreMatchString(dto)
-// 	filterString, _ := buildManticoreFilterString(dto)
-// 	paginationString := buildManticorePaginationString(dto)
-// 	orderString := buildManticoreOrderString()
+	filterString, _ := buildManticoreFilterString(dto)
+	paginationString := buildManticorePaginationString(dto)
+	orderString := buildManticoreOrderString()
 
-	selectString := fmt.Sprintf("SELECT * FROM games WHERE match('%s') OPTION fuzzy=1;", matchString)
+	selectString := fmt.Sprintf("SELECT * FROM games WHERE match('%s') %s %s %s;", matchString, filterString, orderString, paginationString)
 
 	return selectString, nil
 
