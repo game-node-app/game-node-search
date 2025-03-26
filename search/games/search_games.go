@@ -98,7 +98,7 @@ func buildManticoreSearchRequest(dto *schema.GameSearchRequestDto) (string, erro
 	paginationString := buildManticorePaginationString(dto)
 	orderString := buildManticoreOrderString()
 
-	selectString := fmt.Sprintf("SELECT * FROM games WHERE match('%s') %s %s %s OPTION fuzzy=1;", matchString, filterString, orderString, paginationString)
+	selectString := fmt.Sprintf("SELECT * FROM games WHERE match('%s') OPTION fuzzy=1;", matchString)
 
 	return selectString, nil
 
