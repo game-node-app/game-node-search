@@ -123,7 +123,7 @@ func buildManticoreSearchRequest(dto *GameSearchRequestDto) (Manticoresearch.Sea
 
 }
 
-// GameSearchHandler search handler
+// Search search handler
 //
 //	@Summary      Searches for games using Manticore engine
 //	@Description  Returns a parsed search response from the Manticore engine
@@ -133,7 +133,7 @@ func buildManticoreSearchRequest(dto *GameSearchRequestDto) (Manticoresearch.Sea
 //	@Param        query   body      schema.GameSearchRequestDto  true  "Account ID"
 //	@Success      200  {object}   schema.GameSearchResponseDto
 //	@Router       /search/games [post]
-func GameSearchHandler(dto *GameSearchRequestDto) (*GameSearchResponseDto, error) {
+func Search(dto *GameSearchRequestDto) (*GameSearchResponseDto, error) {
 
 	request, err := buildManticoreSearchRequest(dto)
 	if err != nil {

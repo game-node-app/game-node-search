@@ -64,7 +64,7 @@ func main() {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		response, err := games.GameSearchHandler(reqDto)
+		response, err := games.Search(reqDto)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
 			slog.Error("Error while responding to request: ", "err", err)
@@ -87,7 +87,7 @@ func main() {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		response, err := users.UserSearchHandler(reqDto)
+		response, err := users.Search(reqDto)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
 			slog.Error("Error while responding to request: ", "err", err)

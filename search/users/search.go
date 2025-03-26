@@ -63,7 +63,7 @@ func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (Manticoresea
 	return *searchRequest, nil
 }
 
-// UserSearchHandler search handler
+// Search search handler
 //
 //	@Summary      Searches for users using Manticore engine
 //	@Description  Returns a parsed search response from the Manticore engine
@@ -73,7 +73,7 @@ func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (Manticoresea
 //	@Param        query   body      schema.UserSearchRequestDto  true  "Account ID"
 //	@Success      200  {object}   schema.UserSearchResponseDto
 //	@Router       /search/users [post]
-func UserSearchHandler(dto *schema.UserSearchRequestDto) (*schema.UserSearchResponseDto, error) {
+func Search(dto *schema.UserSearchRequestDto) (*schema.UserSearchResponseDto, error) {
 	request, err := buildManticoreSearchRequest(dto)
 	if err != nil {
 		return nil, err
@@ -92,11 +92,11 @@ func UserSearchHandler(dto *schema.UserSearchRequestDto) (*schema.UserSearchResp
 
 	data, err := buildResponseData(mr)
 
-	pagination := buildPaginationInfo(mr, dto.Limit, dto.Page)
+	pagination := buildPaginationInfo(mr, dto.Limit)
 
 	response := schema.UserSearchResponseDto{
-		Data:       *data,
-		Pagination: *pagination,
+		Data:       data,
+		Pagination: pagination,
 	}
 
 	return &response, nil
