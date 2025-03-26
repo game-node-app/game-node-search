@@ -3,9 +3,8 @@ version: '3'
 
 services:
   manticore:
-    image: manticoresearch/manticore:6.2.12
+    image: manticoresearch/manticore:7.4.6
     environment:
-      EXTRA: 1
       CREATE_PLAIN_TABLES: games:0 3 * * *;users:0 * * * *;games;users
 
     restart: always
@@ -27,7 +26,7 @@ services:
 
   search:
     working_dir: "/app"
-    image: lamarcke/game-node-search:0.8.14
+    image: lamarcke/game-node-search:latest
 
     environment:
       MANTICORE_URL: http://manticore:9308
