@@ -2,12 +2,14 @@ package users
 
 import (
 	"game-node-search/schema"
+	Manticoresearch "github.com/manticoresoftware/manticoresearch-go"
+	"github.com/mitchellh/mapstructure"
 )
 
-func buildPaginationInfo(mr *schema.UserManticoreSearchResponse, limit *int) *schema.PaginationInfo {
+func buildPaginationInfo(mr *Manticoresearch.SearchResponse, limit *int32) *schema.PaginationInfo {
 	limitToUse := limit
 	if limit == nil || *limitToUse == 0 {
-		i := schema.DEFAULT_LIMIT
+		i := schema.DefaultLimit
 		limitToUse = &i
 	}
 	var paginationInfo = schema.PaginationInfo{
@@ -29,7 +31,7 @@ func buildPaginationInfo(mr *schema.UserManticoreSearchResponse, limit *int) *sc
 	return &paginationInfo
 }
 
-func buildResponseData(mr *schema.UserManticoreSearchResponse) *schema.UserSearchResponseData {
+func buildResponseData(mr *Manticoresearch.SearchResponse) (*schema.UserSearchResponseData, error) {
 	var users []schema.UserDto
 	var data = schema.UserSearchResponseData{
 		Took:    mr.Took,
@@ -38,15 +40,24 @@ func buildResponseData(mr *schema.UserManticoreSearchResponse) *schema.UserSearc
 
 	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
 		for _, hit := range mr.Hits.Hits {
-			userDto := schema.UserDto{
-				UserId:   hit.Source.UserId,
-				Username: hit.Source.Username,
+			var convertedHit schema.UserManticoreResponseHit
+
+			err := mapstructure.Decode(hit, convertedHit)
+
+			if err != nil {
+				return nil, err
 			}
+
+			userDto := schema.UserDto{
+				UserId:   convertedHit.Source.UserId,
+				Username: convertedHit.Source.Username,
+			}
+
 			users = append(users, userDto)
 		}
 	}
 
 	data.Items = &users
 
-	return &data
+	return &data, nil
 }

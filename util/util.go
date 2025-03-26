@@ -1,6 +1,7 @@
 package util
 
 import (
+	Manticoresearch "github.com/manticoresoftware/manticoresearch-go"
 	"os"
 )
 
@@ -20,4 +21,15 @@ func Contains(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func GetManticoreInstance() *Manticoresearch.APIClient {
+	// Create an instance of API client
+	configuration := Manticoresearch.NewConfiguration()
+	url := GetEnv("MANTICORE_URL", "http://localhost:9308")
+
+	configuration.Servers[0].URL = url
+	apiClient := Manticoresearch.NewAPIClient(configuration)
+
+	return apiClient
 }

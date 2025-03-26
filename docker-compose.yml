@@ -4,7 +4,7 @@ version: '3'
 services:
 
   manticore:
-    image: manticoresearch/manticore:6.2.12
+    image: manticoresearch/manticore:7.4.6
     environment:
       EXTRA: 1
       # Will attempt to index 'gamenode' on startup
@@ -31,13 +31,8 @@ services:
       - manticore:/var/lib/manticore
       - ./manticore.conf:/etc/manticoresearch/manticore.conf
 
-    networks:
-      - game_node_app
+    network_mode: host
 
-
-networks:
-  game_node_app:
-    external: true
 
 volumes:
   manticore:

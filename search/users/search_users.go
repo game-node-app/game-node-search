@@ -1,14 +1,13 @@
 package users
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"game-node-search/schema"
 	"game-node-search/util"
 	jsoniter "github.com/json-iterator/go"
-	"io"
-	"net/http"
-	url2 "net/url"
+	Manticoresearch "github.com/manticoresoftware/manticoresearch-go"
+	"log/slog"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -21,41 +20,47 @@ func ValidateUserSearchRequest(dtoBytes []byte) (*schema.UserSearchRequestDto, e
 		return nil, err
 	}
 	if &request.Query == nil || len(request.Query) == 0 {
-		return nil, fmt.Errorf("Invalid search parameters.")
+		return nil, fmt.Errorf("invalid search parameters")
 	}
 
 	return &request, nil
 }
 
-func buildManticoreMatchString(dto *schema.UserSearchRequestDto) string {
-	return fmt.Sprintf("@username %s*", dto.Query)
+func buildManticoreMatchString(dto *schema.UserSearchRequestDto, request *Manticoresearch.SearchRequest) {
+	matchObj := map[string]interface{}{
+		"username,bio": dto.Query,
+	}
+
+	request.Query.SetMatch(matchObj)
 }
 
-func buildManticorePaginationString(dto *schema.UserSearchRequestDto) string {
+func buildManticorePaginationString(dto *schema.UserSearchRequestDto, request *Manticoresearch.SearchRequest) {
 	limit := dto.Limit
 	page := dto.Page
-	if limit != nil || int(*limit) == 0 {
-		i := schema.DEFAULT_LIMIT
+
+	if limit == nil || int32(*limit) == 0 {
+		i := schema.DefaultLimit
 		limit = &i
 	}
 
-	if page != nil || int(*page) == 0 {
-		i := 1
+	if page == nil || int32(*page) == 0 {
+		i := int32(1)
 		page = &i
 	}
 
 	offset := (*page - 1) * *limit
 
-	return fmt.Sprintf("LIMIT %d OFFSET %d", *limit, offset)
+	request.Limit = limit
+	request.Offset = &offset
 }
 
-func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (string, error) {
-	matchString := buildManticoreMatchString(dto)
-	paginationString := buildManticorePaginationString(dto)
+func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (Manticoresearch.SearchRequest, error) {
+	searchRequest := Manticoresearch.NewSearchRequest("users")
 
-	selectString := fmt.Sprintf("SELECT * FROM users WHERE MATCH('%s') %s", matchString, paginationString)
+	buildManticoreMatchString(dto, searchRequest)
+	buildManticorePaginationString(dto, searchRequest)
 
-	return selectString, nil
+	return *searchRequest, nil
 }
 
 // UserSearchHandler search handler
@@ -69,50 +74,30 @@ func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (string, erro
 //	@Success      200  {object}   schema.UserSearchResponseDto
 //	@Router       /search/users [post]
 func UserSearchHandler(dto *schema.UserSearchRequestDto) (*schema.UserSearchResponseDto, error) {
-	reqString, err := buildManticoreSearchRequest(dto)
+	request, err := buildManticoreSearchRequest(dto)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(reqString)
+	fmt.Printf("Generated request: %v\n", request)
 
-	urlParams := url2.Values{}
-	urlParams.Set("query", reqString)
+	manticore := util.GetManticoreInstance()
 
-	url := util.GetEnv("MANTICORE_URL", "http://localhost:9308")
-	urlWithQuery := fmt.Sprintf("%s%s?%s", url, "/sql", urlParams.Encode())
-	searchRequest, err := http.NewRequest(http.MethodGet, urlWithQuery, nil)
+	mr, _, err := manticore.SearchAPI.Search(context.Background()).SearchRequest(request).Execute()
+
 	if err != nil {
+		slog.Error("error while calling Manticore instance: ", "err", err)
 		return nil, err
 	}
-	searchRequest.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	manticoreResponseObject, err := client.Do(searchRequest)
+	data, err := buildResponseData(mr)
 
-	var manticoreSearchResponse schema.UserManticoreSearchResponse
+	pagination := buildPaginationInfo(mr, dto.Limit, dto.Page)
 
-	err = json.NewDecoder(manticoreResponseObject.Body).Decode(&manticoreSearchResponse)
-
-	if err != nil {
-		return nil, errors.New("Manticore is unavailable")
+	response := schema.UserSearchResponseDto{
+		Data:       *data,
+		Pagination: *pagination,
 	}
 
-	responseData := buildResponseData(&manticoreSearchResponse)
-	paginationInfo := buildPaginationInfo(&manticoreSearchResponse, dto.Limit)
-
-	finalResponseDto := schema.UserSearchResponseDto{
-		Data:       responseData,
-		Pagination: paginationInfo,
-	}
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			return
-		}
-	}(manticoreResponseObject.Body)
-
-	return &finalResponseDto, nil
-
+	return &response, nil
 }

@@ -2,23 +2,17 @@ package games
 
 import (
 	"game-node-search/schema"
-	"regexp"
+	Manticoresearch "github.com/manticoresoftware/manticoresearch-go"
+	"github.com/mitchellh/mapstructure"
+	"log/slog"
 	"strconv"
 	"time"
 )
 
-func parseQuery(q string) string {
-	var result = q
-	quotesRegx := regexp.MustCompile(`['"]`)
-	result = quotesRegx.ReplaceAllString(result, "")
-
-	return result
-}
-
-func buildPaginationInfo(mr *schema.ManticoreSearchResponse, limit *int, currentPage *int) *schema.PaginationInfo {
+func buildPaginationInfo(mr *Manticoresearch.SearchResponse, limit *int32, currentPage *int32) *schema.PaginationInfo {
 	limitToUse := limit
 	if limit == nil || *limitToUse == 0 {
-		i := schema.DEFAULT_LIMIT
+		i := schema.DefaultLimit
 		limitToUse = &i
 	}
 	var paginationInfo = schema.PaginationInfo{
@@ -44,40 +38,48 @@ func buildPaginationInfo(mr *schema.ManticoreSearchResponse, limit *int, current
 
 }
 
-func buildResponseData(mr *schema.ManticoreSearchResponse) *schema.ResponseData {
-	var searchGames []schema.SearchGame
+func buildResponseData(mr *Manticoresearch.SearchResponse) (*ResponseData, error) {
+	var searchGames []SearchGame
 
-	var data = schema.ResponseData{
+	var data = ResponseData{
 		Took:    mr.Took,
 		Profile: mr.Profile,
 	}
 
 	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
 		for _, hit := range mr.Hits.Hits {
-			hitIdNumber, _ := strconv.ParseUint(hit.ID, 10, 64)
-			searchGame := schema.SearchGame{
+			var convertedHit ManticoreResponseHit
+			err := mapstructure.Decode(hit, convertedHit)
+			if err != nil {
+				slog.Error("Error while decoding results to return type.", "err", err)
+				return nil, err
+			}
+
+			hitIdNumber, _ := strconv.ParseUint(convertedHit.ID, 10, 64)
+
+			searchGame := SearchGame{
 				ID:                     hitIdNumber,
-				Name:                   hit.Source.Name,
-				Slug:                   hit.Source.Slug,
-				Summary:                hit.Source.Summary,
-				Storyline:              hit.Source.Storyline,
-				Checksum:               hit.Source.Checksum,
-				AggregatedRating:       hit.Source.AggregatedRating,
-				AggregatedRatingCount:  hit.Source.AggregatedRatingCount,
-				Category:               hit.Source.Category,
-				Status:                 hit.Source.Status,
-				CoverUrl:               hit.Source.CoverUrl,
-				GenresNames:            hit.Source.GenresNames,
-				ThemesNames:            hit.Source.ThemesNames,
-				PlatformsNames:         hit.Source.PlatformsNames,
-				PlatformsAbbreviations: hit.Source.PlatformsAbbreviations,
-				KeywordsNames:          hit.Source.KeywordsNames,
-				NumViews:               hit.Source.NumViews,
-				NumLikes:               hit.Source.NumLikes,
-				Source:                 hit.Source.Source,
-				CreatedAt:              time.Unix(int64(hit.Source.CreatedAt), 0),
-				FirstReleaseDate:       time.Unix(int64(hit.Source.FirstReleaseDate), 0),
-				UpdatedAt:              time.Unix(int64(hit.Source.UpdatedAt), 0),
+				Name:                   convertedHit.Source.Name,
+				Slug:                   convertedHit.Source.Slug,
+				Summary:                convertedHit.Source.Summary,
+				Storyline:              convertedHit.Source.Storyline,
+				Checksum:               convertedHit.Source.Checksum,
+				AggregatedRating:       convertedHit.Source.AggregatedRating,
+				AggregatedRatingCount:  convertedHit.Source.AggregatedRatingCount,
+				Category:               convertedHit.Source.Category,
+				Status:                 convertedHit.Source.Status,
+				CoverUrl:               convertedHit.Source.CoverUrl,
+				GenresNames:            convertedHit.Source.GenresNames,
+				ThemesNames:            convertedHit.Source.ThemesNames,
+				PlatformsNames:         convertedHit.Source.PlatformsNames,
+				PlatformsAbbreviations: convertedHit.Source.PlatformsAbbreviations,
+				KeywordsNames:          convertedHit.Source.KeywordsNames,
+				NumViews:               convertedHit.Source.NumViews,
+				NumLikes:               convertedHit.Source.NumLikes,
+				Source:                 convertedHit.Source.Source,
+				CreatedAt:              time.Unix(int64(convertedHit.Source.CreatedAt), 0),
+				FirstReleaseDate:       time.Unix(int64(convertedHit.Source.FirstReleaseDate), 0),
+				UpdatedAt:              time.Unix(int64(convertedHit.Source.UpdatedAt), 0),
 			}
 			searchGames = append(searchGames, searchGame)
 		}
@@ -85,5 +87,5 @@ func buildResponseData(mr *schema.ManticoreSearchResponse) *schema.ResponseData 
 
 	data.Items = &searchGames
 
-	return &data
+	return &data, nil
 }

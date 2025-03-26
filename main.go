@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/swaggo/http-swagger/v2"
 	"io"
+	"log/slog"
 	"net/http"
 )
 
@@ -58,6 +59,7 @@ func main() {
 		reqDtoBytes, _ := io.ReadAll(r.Body)
 		reqDto, err := games.ValidateGameSearchRequest(reqDtoBytes)
 		if err != nil {
+			slog.Error("Error while responding to request: ", "err", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
@@ -65,6 +67,7 @@ func main() {
 		response, err := games.GameSearchHandler(reqDto)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
+			slog.Error("Error while responding to request: ", "err", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
@@ -79,6 +82,7 @@ func main() {
 		reqDtoBytes, _ := io.ReadAll(r.Body)
 		reqDto, err := users.ValidateUserSearchRequest(reqDtoBytes)
 		if err != nil {
+			slog.Error("Error while responding to request: ", "err", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
@@ -86,6 +90,7 @@ func main() {
 		response, err := users.UserSearchHandler(reqDto)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
+			slog.Error("Error while responding to request: ", "err", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
