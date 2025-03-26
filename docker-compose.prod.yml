@@ -3,10 +3,9 @@ version: '3'
 
 services:
   manticore:
-    image: manticoresearch/manticore:6.2.12
+    image: manticoresearch/manticore:7.4.6
     environment:
-      EXTRA: 1
-      CREATE_PLAIN_TABLES: games:0 3 * * *;users:0 * * * *;games;users
+      CREATE_PLAIN_TABLES: games:0 3 * * *;users:0 * * * *;
 
     restart: always
     ulimits:
