@@ -77,6 +77,32 @@ func main() {
 		_, _ = w.Write(responseBytes)
 		return
 	})
+	r.Post("/search/games/autocomplete", func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		reqDtoBytes, _ := io.ReadAll(r.Body)
+
+		var reqDto games.GameAutocompleteRequestDto
+		err := json.Unmarshal(reqDtoBytes, &reqDto)
+		if err != nil {
+			slog.Error("Error while responding to request: ", "err", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		response, err := games.Autocomplete(&reqDto)
+		w.Header().Set("Content-Type", "application/json")
+		if err != nil {
+			slog.Error("Error while responding to request: ", "err", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		responseBytes, _ := json.Marshal(response)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(responseBytes)
+		return
+	})
 	r.Post("/search/users", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		reqDtoBytes, _ := io.ReadAll(r.Body)

@@ -31,7 +31,7 @@ type ManticoreResponseHitSource struct {
 }
 
 type ManticoreResponseHit struct {
-	ID    string `json:"_id"`
+	ID    uint64 `json:"_id"`
 	Score int    `json:"_score"`
 	// To avoid re-mapping here, we only map the final SearchGame which is used in GameSearchResponseHit
 	// This is basically SearchGame as returned by ManticoreSearch, in snake_case.
@@ -88,13 +88,22 @@ type GameSearchResponseDto struct {
 }
 
 type GameSearchRequestDto struct {
-	Query     string    `json:"query"`
-	Category  *[]int    `json:"category,omitempty"`
-	Status    *[]int    `json:"status,omitempty"`
-	Genres    *[]string `json:"genres"`
-	Themes    *[]string `json:"themes"`
-	Platforms *[]string `json:"platforms"`
-	Limit     *int32    `json:"limit,omitempty"`
-	Page      *int32    `json:"page,omitempty"`
-	Profile   *bool     `json:"profile,omitempty"`
+	Query     string   `json:"query"`
+	Category  []int    `json:"category,omitempty"`
+	Status    []int    `json:"status,omitempty"`
+	Genres    []string `json:"genres,omitempty"`
+	Themes    []string `json:"themes,omitempty"`
+	Platforms []string `json:"platforms,omitempty"`
+	Limit     *int32   `json:"limit,omitempty"`
+	Page      *int32   `json:"page,omitempty"`
+	Profile   *bool    `json:"profile,omitempty"`
+}
+
+type GameAutocompleteRequestDto struct {
+	Query string `json:"query"`
+}
+
+type GameAutocompleteResponseDto struct {
+	Total uint     `json:"total"`
+	Data  []string `json:"data"`
 }

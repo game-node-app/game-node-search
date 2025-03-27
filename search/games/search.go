@@ -30,46 +30,57 @@ func buildManticoreMatchString(dto *GameSearchRequestDto, request *Manticoresear
 		return errors.New("query parameter empty")
 	}
 
+	if !request.HasQuery() {
+		request.Query = Manticoresearch.NewSearchQuery()
+	}
+
+	if !request.Query.HasBool() {
+		request.Query.Bool = Manticoresearch.NewBoolFilter()
+	}
+
+	if !request.Query.Bool.HasMust() {
+		request.Query.Bool.Must = make([]Manticoresearch.QueryFilter, 0)
+	}
+
+	filter := Manticoresearch.NewQueryFilter()
+
 	matchObj := map[string]interface{}{
 		"name,alternative_names": *query,
 	}
 
-	request.Query.SetMatch(matchObj)
+	filter.SetMatch(matchObj)
+
+	request.Query.Bool.Must = append(request.Query.Bool.Must, *filter)
 
 	return nil
 
 }
 
-func buildManticoreFilterString(dto *GameSearchRequestDto) (string, error) {
-	var filterString = ""
-	if dto.Category != nil && len(*dto.Category) > 0 {
-		var categoryFilterArrayString = ""
-		for i, v := range *dto.Category {
-			if i > 0 {
-				categoryFilterArrayString = fmt.Sprintf("%s,%d", categoryFilterArrayString, v)
-				continue
-			}
-			categoryFilterArrayString = fmt.Sprintf("%d", v)
-
+func buildManticoreFilterString(dto *GameSearchRequestDto, request *Manticoresearch.SearchRequest) error {
+	if dto.Category != nil && len(dto.Category) > 0 {
+		inObj := map[string]interface{}{
+			"category": dto.Category,
 		}
 
-		filterString += fmt.Sprintf(" AND category IN (%s)", categoryFilterArrayString)
-	}
-	if dto.Status != nil && len(*dto.Status) > 0 {
-		var statusFilterArrayString = ""
-		for i, v := range *dto.Status {
-			if i > 0 {
-				statusFilterArrayString = fmt.Sprintf("%s,%d", statusFilterArrayString, v)
-				continue
-			}
-			statusFilterArrayString = fmt.Sprintf("%d", v)
+		categoryFilter := Manticoresearch.QueryFilter{
+			In: inObj,
 		}
 
-		filterString += fmt.Sprintf(" AND status IN (%s)", statusFilterArrayString)
+		request.Query.Bool.Must = append(request.Query.Bool.Must, categoryFilter)
+	}
+	if dto.Status != nil && len(dto.Status) > 0 {
+		inObj := map[string]interface{}{
+			"status": dto.Status,
+		}
 
+		statusFilter := Manticoresearch.QueryFilter{
+			In: inObj,
+		}
+
+		request.Query.Bool.Must = append(request.Query.Bool.Must, statusFilter)
 	}
 
-	return filterString, nil
+	return nil
 }
 
 func buildManticorePaginationString(dto *GameSearchRequestDto, request *Manticoresearch.SearchRequest) error {
@@ -96,23 +107,19 @@ func buildManticorePaginationString(dto *GameSearchRequestDto, request *Manticor
 	return nil
 }
 
-func buildManticoreOrderString() string {
-	return "ORDER BY num_likes DESC, num_views DESC"
+func buildManticoreOrderString(request *Manticoresearch.SearchRequest) {
+	request.Sort = []string{"_score", "num_likes", "num_views"}
 }
 
 func buildManticoreSearchRequest(dto *GameSearchRequestDto) (Manticoresearch.SearchRequest, error) {
 	searchRequest := Manticoresearch.NewSearchRequest("games")
 
-	options := map[string]interface{}{
-		"fuzzy": true,
-	}
-
-	searchRequest.SetOptions(options)
-
 	var err error = nil
 
 	err = buildManticoreMatchString(dto, searchRequest)
+	err = buildManticoreFilterString(dto, searchRequest)
 	err = buildManticorePaginationString(dto, searchRequest)
+	buildManticoreOrderString(searchRequest)
 
 	if err != nil {
 		slog.Error("Last error while building match filter: ", "err", err)
@@ -130,8 +137,8 @@ func buildManticoreSearchRequest(dto *GameSearchRequestDto) (Manticoresearch.Sea
 //	@Tags         search
 //	@Accept       json
 //	@Produce      json
-//	@Param        query   body      schema.GameSearchRequestDto  true  "Account ID"
-//	@Success      200  {object}   schema.GameSearchResponseDto
+//	@Param        query   body      games.GameSearchRequestDto  true  "Account ID"
+//	@Success      200  {object}   games.GameSearchResponseDto
 //	@Router       /search/games [post]
 func Search(dto *GameSearchRequestDto) (*GameSearchResponseDto, error) {
 
@@ -144,10 +151,10 @@ func Search(dto *GameSearchRequestDto) (*GameSearchResponseDto, error) {
 
 	manticore := util.GetManticoreInstance()
 
-	mr, _, err := manticore.SearchAPI.Search(context.Background()).SearchRequest(request).Execute()
+	mr, r, err := manticore.SearchAPI.Search(context.Background()).SearchRequest(request).Execute()
 
 	if err != nil {
-		slog.Error("error while calling Manticore instance: ", "err", err)
+		slog.Error("error while calling Manticore instance: ", "err", err, "response", r)
 		return nil, err
 	}
 

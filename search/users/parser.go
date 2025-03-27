@@ -3,7 +3,7 @@ package users
 import (
 	"game-node-search/schema"
 	Manticoresearch "github.com/manticoresoftware/manticoresearch-go"
-	"github.com/mitchellh/mapstructure"
+	"log/slog"
 )
 
 func buildPaginationInfo(mr *Manticoresearch.SearchResponse, limit *int32) *schema.PaginationInfo {
@@ -31,24 +31,32 @@ func buildPaginationInfo(mr *Manticoresearch.SearchResponse, limit *int32) *sche
 	return &paginationInfo
 }
 
-func buildResponseData(mr *Manticoresearch.SearchResponse) (*schema.UserSearchResponseData, error) {
-	var users []schema.UserDto
-	var data = schema.UserSearchResponseData{
+func buildResponseData(mr *Manticoresearch.SearchResponse) (*UserSearchResponseData, error) {
+	var users []UserDto
+
+	var data = UserSearchResponseData{
 		Took:    mr.Took,
 		Profile: mr.Profile,
+		Items:   &[]UserDto{},
 	}
 
 	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
 		for _, hit := range mr.Hits.Hits {
-			var convertedHit schema.UserManticoreResponseHit
-
-			err := mapstructure.Decode(hit, convertedHit)
-
+			hitJson, err := json.Marshal(hit)
 			if err != nil {
+				slog.Error("Error while decoding results to JSON.", "err", err)
 				return nil, err
 			}
 
-			userDto := schema.UserDto{
+			var convertedHit UserManticoreResponseHit
+
+			err = json.Unmarshal(hitJson, &convertedHit)
+			if err != nil {
+				slog.Error("Error while decoding results from JSON.", "err", err)
+				return nil, err
+			}
+
+			userDto := UserDto{
 				UserId:   convertedHit.Source.UserId,
 				Username: convertedHit.Source.Username,
 			}
@@ -57,7 +65,9 @@ func buildResponseData(mr *Manticoresearch.SearchResponse) (*schema.UserSearchRe
 		}
 	}
 
-	data.Items = &users
+	if users != nil {
+		data.Items = &users
+	}
 
 	return &data, nil
 }

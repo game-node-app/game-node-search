@@ -12,8 +12,8 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-func ValidateUserSearchRequest(dtoBytes []byte) (*schema.UserSearchRequestDto, error) {
-	var request = schema.UserSearchRequestDto{}
+func ValidateUserSearchRequest(dtoBytes []byte) (*UserSearchRequestDto, error) {
+	var request = UserSearchRequestDto{}
 	fmt.Println(string(dtoBytes))
 	err := json.Unmarshal(dtoBytes, &request)
 	if err != nil {
@@ -26,15 +26,19 @@ func ValidateUserSearchRequest(dtoBytes []byte) (*schema.UserSearchRequestDto, e
 	return &request, nil
 }
 
-func buildManticoreMatchString(dto *schema.UserSearchRequestDto, request *Manticoresearch.SearchRequest) {
+func buildManticoreMatchString(dto *UserSearchRequestDto, request *Manticoresearch.SearchRequest) {
 	matchObj := map[string]interface{}{
-		"username,bio": dto.Query,
+		"username": fmt.Sprintf("%s*", dto.Query),
+	}
+
+	if !request.HasQuery() {
+		request.Query = Manticoresearch.NewSearchQuery()
 	}
 
 	request.Query.SetMatch(matchObj)
 }
 
-func buildManticorePaginationString(dto *schema.UserSearchRequestDto, request *Manticoresearch.SearchRequest) {
+func buildManticorePaginationString(dto *UserSearchRequestDto, request *Manticoresearch.SearchRequest) {
 	limit := dto.Limit
 	page := dto.Page
 
@@ -54,7 +58,7 @@ func buildManticorePaginationString(dto *schema.UserSearchRequestDto, request *M
 	request.Offset = &offset
 }
 
-func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (Manticoresearch.SearchRequest, error) {
+func buildManticoreSearchRequest(dto *UserSearchRequestDto) (Manticoresearch.SearchRequest, error) {
 	searchRequest := Manticoresearch.NewSearchRequest("users")
 
 	buildManticoreMatchString(dto, searchRequest)
@@ -63,7 +67,7 @@ func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (Manticoresea
 	return *searchRequest, nil
 }
 
-// Search search handler
+// Search users handler
 //
 //	@Summary      Searches for users using Manticore engine
 //	@Description  Returns a parsed search response from the Manticore engine
@@ -73,7 +77,7 @@ func buildManticoreSearchRequest(dto *schema.UserSearchRequestDto) (Manticoresea
 //	@Param        query   body      schema.UserSearchRequestDto  true  "Account ID"
 //	@Success      200  {object}   schema.UserSearchResponseDto
 //	@Router       /search/users [post]
-func Search(dto *schema.UserSearchRequestDto) (*schema.UserSearchResponseDto, error) {
+func Search(dto *UserSearchRequestDto) (*UserSearchResponseDto, error) {
 	request, err := buildManticoreSearchRequest(dto)
 	if err != nil {
 		return nil, err
@@ -92,9 +96,13 @@ func Search(dto *schema.UserSearchRequestDto) (*schema.UserSearchResponseDto, er
 
 	data, err := buildResponseData(mr)
 
+	if err != nil {
+		return nil, err
+	}
+
 	pagination := buildPaginationInfo(mr, dto.Limit)
 
-	response := schema.UserSearchResponseDto{
+	response := UserSearchResponseDto{
 		Data:       data,
 		Pagination: pagination,
 	}

@@ -3,9 +3,7 @@ package games
 import (
 	"game-node-search/schema"
 	Manticoresearch "github.com/manticoresoftware/manticoresearch-go"
-	"github.com/mitchellh/mapstructure"
 	"log/slog"
-	"strconv"
 	"time"
 )
 
@@ -15,6 +13,12 @@ func buildPaginationInfo(mr *Manticoresearch.SearchResponse, limit *int32, curre
 		i := schema.DefaultLimit
 		limitToUse = &i
 	}
+
+	if currentPage == nil {
+		p := int32(1)
+		currentPage = &p
+	}
+
 	var paginationInfo = schema.PaginationInfo{
 		TotalItems:  0,
 		TotalPages:  0,
@@ -47,18 +51,24 @@ func buildResponseData(mr *Manticoresearch.SearchResponse) (*ResponseData, error
 	}
 
 	if mr.Hits != nil && mr.Hits.Hits != nil && len(mr.Hits.Hits) > 0 {
+
 		for _, hit := range mr.Hits.Hits {
-			var convertedHit ManticoreResponseHit
-			err := mapstructure.Decode(hit, convertedHit)
+			hitJson, err := json.Marshal(hit)
 			if err != nil {
-				slog.Error("Error while decoding results to return type.", "err", err)
+				slog.Error("Error while decoding results to JSON.", "err", err)
 				return nil, err
 			}
 
-			hitIdNumber, _ := strconv.ParseUint(convertedHit.ID, 10, 64)
+			var convertedHit ManticoreResponseHit
+
+			err = json.Unmarshal(hitJson, &convertedHit)
+			if err != nil {
+				slog.Error("Error while decoding results from JSON.", "err", err)
+				return nil, err
+			}
 
 			searchGame := SearchGame{
-				ID:                     hitIdNumber,
+				ID:                     convertedHit.ID,
 				Name:                   convertedHit.Source.Name,
 				Slug:                   convertedHit.Source.Slug,
 				Summary:                convertedHit.Source.Summary,
@@ -86,6 +96,10 @@ func buildResponseData(mr *Manticoresearch.SearchResponse) (*ResponseData, error
 	}
 
 	data.Items = &searchGames
+
+	if searchGames == nil {
+		data.Items = &[]SearchGame{}
+	}
 
 	return &data, nil
 }
