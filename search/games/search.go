@@ -48,7 +48,7 @@ func buildManticoreMatchString(dto *GameSearchRequestDto, request *Manticoresear
 		"name,alternative_names": *query,
 	}
 
-	filter.SetMatch(matchObj)
+	filter.SetMatchPhrase(matchObj)
 
 	request.Query.Bool.Must = append(request.Query.Bool.Must, *filter)
 
@@ -108,7 +108,7 @@ func buildManticorePaginationString(dto *GameSearchRequestDto, request *Manticor
 }
 
 func buildManticoreOrderString(request *Manticoresearch.SearchRequest) {
-	request.Sort = []string{"_score", "num_likes", "num_views"}
+	request.Sort = []string{"num_views"}
 }
 
 func buildManticoreSearchRequest(dto *GameSearchRequestDto) (Manticoresearch.SearchRequest, error) {
