@@ -45,7 +45,7 @@ func buildManticoreMatchString(dto *GameSearchRequestDto, request *Manticoresear
 	filter := Manticoresearch.NewQueryFilter()
 
 	matchObj := map[string]interface{}{
-		"query_string": fmt.Sprintf("@name^10 @alternative_names^5 ^%s", *query),
+		"name,alternative_names": fmt.Sprintf("^%s", *query),
 	}
 
 	filter.SetMatch(matchObj)
