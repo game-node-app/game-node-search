@@ -11,20 +11,17 @@ import (
 //	@Tags         search
 //	@Accept       json
 //	@Produce      json
-//	@Param        query   body      games.GameAutocompleteRequestDto  true  ""
+//	@Param        query   body      games.GameSearchRequestDto  true  "Request body"
 //	@Success      200  {object}   games.GameAutocompleteResponseDto
 //	@Router       /search/games/autocomplete [post]
-func Autocomplete(dto *GameAutocompleteRequestDto) (*GameAutocompleteResponseDto, error) {
-	autocompleteQuery := fmt.Sprintf("^\"%s*\"", dto.Query)
-
+func Autocomplete(dto *GameSearchRequestDto) (*GameAutocompleteResponseDto, error) {
+	autocompleteQuery := fmt.Sprintf("%s*", dto.Query)
 	limit := int32(5)
 
-	searchRequest := GameSearchRequestDto{
-		Query: autocompleteQuery,
-		Limit: &limit,
-	}
+	dto.Query = autocompleteQuery
+	dto.Limit = &limit
 
-	searchResponseDto, err := Search(&searchRequest)
+	searchResponseDto, err := Search(dto)
 	if err != nil {
 		return nil, err
 	}

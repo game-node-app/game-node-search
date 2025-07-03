@@ -39,12 +39,12 @@ const docTemplate = `{
                 "summary": "Searches for games using Manticore engine",
                 "parameters": [
                     {
-                        "description": "Account ID",
+                        "description": "Request body",
                         "name": "query",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/schema.GameSearchRequestDto"
+                            "$ref": "#/definitions/games.GameSearchRequestDto"
                         }
                     }
                 ],
@@ -52,7 +52,41 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/schema.GameSearchResponseDto"
+                            "$ref": "#/definitions/games.GameSearchResponseDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/search/games/autocomplete": {
+            "post": {
+                "description": "Returns a parsed search response from the Manticore engine",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "search"
+                ],
+                "summary": "Autocomplete games names using Manticore engine",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/games.GameSearchRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/games.GameAutocompleteResponseDto"
                         }
                     }
                 }
@@ -78,7 +112,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/schema.UserSearchRequestDto"
+                            "$ref": "#/definitions/users.UserSearchRequestDto"
                         }
                     }
                 ],
@@ -86,7 +120,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/schema.UserSearchResponseDto"
+                            "$ref": "#/definitions/users.UserSearchResponseDto"
                         }
                     }
                 }
@@ -94,7 +128,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "schema.GameSearchRequestDto": {
+        "games.GameAutocompleteResponseDto": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "games.GameSearchRequestDto": {
             "type": "object",
             "properties": {
                 "category": {
@@ -141,38 +189,24 @@ const docTemplate = `{
                 }
             }
         },
-        "schema.GameSearchResponseDto": {
+        "games.GameSearchResponseDto": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/schema.ResponseData"
+                    "$ref": "#/definitions/games.ResponseData"
                 },
                 "pagination": {
                     "$ref": "#/definitions/schema.PaginationInfo"
                 }
             }
         },
-        "schema.PaginationInfo": {
-            "type": "object",
-            "properties": {
-                "hasNextPage": {
-                    "type": "boolean"
-                },
-                "totalItems": {
-                    "type": "integer"
-                },
-                "totalPages": {
-                    "type": "integer"
-                }
-            }
-        },
-        "schema.ResponseData": {
+        "games.ResponseData": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/schema.SearchGame"
+                        "$ref": "#/definitions/games.SearchGame"
                     }
                 },
                 "profile": {
@@ -184,7 +218,7 @@ const docTemplate = `{
                 }
             }
         },
-        "schema.SearchGame": {
+        "games.SearchGame": {
             "type": "object",
             "properties": {
                 "aggregatedRating": {
@@ -255,7 +289,21 @@ const docTemplate = `{
                 }
             }
         },
-        "schema.UserDto": {
+        "schema.PaginationInfo": {
+            "type": "object",
+            "properties": {
+                "hasNextPage": {
+                    "type": "boolean"
+                },
+                "totalItems": {
+                    "type": "integer"
+                },
+                "totalPages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.UserDto": {
             "type": "object",
             "properties": {
                 "userId": {
@@ -266,7 +314,7 @@ const docTemplate = `{
                 }
             }
         },
-        "schema.UserSearchRequestDto": {
+        "users.UserSearchRequestDto": {
             "type": "object",
             "properties": {
                 "limit": {
@@ -280,13 +328,13 @@ const docTemplate = `{
                 }
             }
         },
-        "schema.UserSearchResponseData": {
+        "users.UserSearchResponseData": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/schema.UserDto"
+                        "$ref": "#/definitions/users.UserDto"
                     }
                 },
                 "profile": {
@@ -298,11 +346,11 @@ const docTemplate = `{
                 }
             }
         },
-        "schema.UserSearchResponseDto": {
+        "users.UserSearchResponseDto": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/schema.UserSearchResponseData"
+                    "$ref": "#/definitions/users.UserSearchResponseData"
                 },
                 "pagination": {
                     "$ref": "#/definitions/schema.PaginationInfo"

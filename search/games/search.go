@@ -45,10 +45,10 @@ func buildManticoreMatchString(dto *GameSearchRequestDto, request *Manticoresear
 	filter := Manticoresearch.NewQueryFilter()
 
 	matchObj := map[string]interface{}{
-		"name,alternative_names": *query,
+		"query_string": fmt.Sprintf("@name^10 @alternative_names^5 ^%s", *query),
 	}
 
-	filter.SetMatchPhrase(matchObj)
+	filter.SetMatch(matchObj)
 
 	request.Query.Bool.Must = append(request.Query.Bool.Must, *filter)
 
@@ -108,7 +108,11 @@ func buildManticorePaginationString(dto *GameSearchRequestDto, request *Manticor
 }
 
 func buildManticoreOrderString(request *Manticoresearch.SearchRequest) {
-	request.Sort = []string{"num_views"}
+	request.Sort = map[string]interface{}{
+		"_score":             "desc",
+		"num_views":          "desc",
+		"first_release_date": "desc",
+	}
 }
 
 func buildManticoreSearchRequest(dto *GameSearchRequestDto) (Manticoresearch.SearchRequest, error) {
@@ -137,7 +141,7 @@ func buildManticoreSearchRequest(dto *GameSearchRequestDto) (Manticoresearch.Sea
 //	@Tags         search
 //	@Accept       json
 //	@Produce      json
-//	@Param        query   body      games.GameSearchRequestDto  true  "Account ID"
+//	@Param        query   body      games.GameSearchRequestDto  true  "Request body"
 //	@Success      200  {object}   games.GameSearchResponseDto
 //	@Router       /search/games [post]
 func Search(dto *GameSearchRequestDto) (*GameSearchResponseDto, error) {

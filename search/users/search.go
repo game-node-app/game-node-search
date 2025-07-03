@@ -74,8 +74,8 @@ func buildManticoreSearchRequest(dto *UserSearchRequestDto) (Manticoresearch.Sea
 //	@Tags         search
 //	@Accept       json
 //	@Produce      json
-//	@Param        query   body      schema.UserSearchRequestDto  true  "Account ID"
-//	@Success      200  {object}   schema.UserSearchResponseDto
+//	@Param        query   body      users.UserSearchRequestDto  true  "Account ID"
+//	@Success      200  {object}   users.UserSearchResponseDto
 //	@Router       /search/users [post]
 func Search(dto *UserSearchRequestDto) (*UserSearchResponseDto, error) {
 	request, err := buildManticoreSearchRequest(dto)

@@ -99,10 +99,6 @@ type GameSearchRequestDto struct {
 	Profile   *bool    `json:"profile,omitempty"`
 }
 
-type GameAutocompleteRequestDto struct {
-	Query string `json:"query"`
-}
-
 type GameAutocompleteResponseDto struct {
 	Total uint     `json:"total"`
 	Data  []string `json:"data"`

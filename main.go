@@ -81,7 +81,7 @@ func main() {
 		defer r.Body.Close()
 		reqDtoBytes, _ := io.ReadAll(r.Body)
 
-		var reqDto games.GameAutocompleteRequestDto
+		var reqDto games.GameSearchRequestDto
 		err := json.Unmarshal(reqDtoBytes, &reqDto)
 		if err != nil {
 			slog.Error("Error while responding to request: ", "err", err)

@@ -1,5 +1,14 @@
 definitions:
-  schema.GameSearchRequestDto:
+  games.GameAutocompleteResponseDto:
+    properties:
+      data:
+        items:
+          type: string
+        type: array
+      total:
+        type: integer
+    type: object
+  games.GameSearchRequestDto:
     properties:
       category:
         items:
@@ -30,27 +39,18 @@ definitions:
           type: string
         type: array
     type: object
-  schema.GameSearchResponseDto:
+  games.GameSearchResponseDto:
     properties:
       data:
-        $ref: '#/definitions/schema.ResponseData'
+        $ref: '#/definitions/games.ResponseData'
       pagination:
         $ref: '#/definitions/schema.PaginationInfo'
     type: object
-  schema.PaginationInfo:
-    properties:
-      hasNextPage:
-        type: boolean
-      totalItems:
-        type: integer
-      totalPages:
-        type: integer
-    type: object
-  schema.ResponseData:
+  games.ResponseData:
     properties:
       items:
         items:
-          $ref: '#/definitions/schema.SearchGame'
+          $ref: '#/definitions/games.SearchGame'
         type: array
       profile:
         additionalProperties: true
@@ -58,7 +58,7 @@ definitions:
       took:
         type: integer
     type: object
-  schema.SearchGame:
+  games.SearchGame:
     properties:
       aggregatedRating:
         type: number
@@ -105,14 +105,23 @@ definitions:
       updatedAt:
         type: string
     type: object
-  schema.UserDto:
+  schema.PaginationInfo:
+    properties:
+      hasNextPage:
+        type: boolean
+      totalItems:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  users.UserDto:
     properties:
       userId:
         type: string
       username:
         type: string
     type: object
-  schema.UserSearchRequestDto:
+  users.UserSearchRequestDto:
     properties:
       limit:
         type: integer
@@ -121,11 +130,11 @@ definitions:
       query:
         type: string
     type: object
-  schema.UserSearchResponseData:
+  users.UserSearchResponseData:
     properties:
       items:
         items:
-          $ref: '#/definitions/schema.UserDto'
+          $ref: '#/definitions/users.UserDto'
         type: array
       profile:
         additionalProperties: true
@@ -133,10 +142,10 @@ definitions:
       took:
         type: integer
     type: object
-  schema.UserSearchResponseDto:
+  users.UserSearchResponseDto:
     properties:
       data:
-        $ref: '#/definitions/schema.UserSearchResponseData'
+        $ref: '#/definitions/users.UserSearchResponseData'
       pagination:
         $ref: '#/definitions/schema.PaginationInfo'
     type: object
@@ -159,20 +168,42 @@ paths:
       - application/json
       description: Returns a parsed search response from the Manticore engine
       parameters:
-      - description: Account ID
+      - description: Request body
         in: body
         name: query
         required: true
         schema:
-          $ref: '#/definitions/schema.GameSearchRequestDto'
+          $ref: '#/definitions/games.GameSearchRequestDto'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/schema.GameSearchResponseDto'
+            $ref: '#/definitions/games.GameSearchResponseDto'
       summary: Searches for games using Manticore engine
+      tags:
+      - search
+  /search/games/autocomplete:
+    post:
+      consumes:
+      - application/json
+      description: Returns a parsed search response from the Manticore engine
+      parameters:
+      - description: Request body
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/games.GameSearchRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/games.GameAutocompleteResponseDto'
+      summary: Autocomplete games names using Manticore engine
       tags:
       - search
   /search/users:
@@ -186,14 +217,14 @@ paths:
         name: query
         required: true
         schema:
-          $ref: '#/definitions/schema.UserSearchRequestDto'
+          $ref: '#/definitions/users.UserSearchRequestDto'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/schema.UserSearchResponseDto'
+            $ref: '#/definitions/users.UserSearchResponseDto'
       summary: Searches for users using Manticore engine
       tags:
       - search
