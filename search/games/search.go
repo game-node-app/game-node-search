@@ -48,7 +48,7 @@ func buildManticoreMatchString(dto *GameSearchRequestDto, request *Manticoresear
 		"name,alternative_names": fmt.Sprintf("^%s", *query),
 	}
 
-	filter.SetMatch(matchObj)
+	filter.SetMatchPhrase(matchObj)
 
 	request.Query.Bool.Must = append(request.Query.Bool.Must, *filter)
 
